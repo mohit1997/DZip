@@ -1,5 +1,7 @@
 import numpy as np
 import os
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 import keras
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
@@ -22,12 +24,10 @@ from keras.layers.advanced_activations import ELU
 import tensorflow as tf
 import numpy as np
 import argparse
-
+import os
 from keras.callbacks import CSVLogger
 from keras import backend as K
 from clr import LRFinder, OneCycleLR
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
@@ -145,7 +145,7 @@ def generate_single_output_data(series,batch_size,time_steps):
         
 def fit_model(X, Y, bs, nb_epoch, student, teacher):
     y = Y
-    decayrate = 1.0/(len(Y) // bs)
+    decayrate = 0.5/(len(Y) // bs)
     optim = keras.optimizers.Adam(lr=5e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False, clipnorm=0.05)
     student.compile(loss={'1': loss_fn}, optimizer=optim, metrics=['acc'])
     checkpoint = ModelCheckpoint("directbigru", monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
@@ -169,9 +169,9 @@ noise = 0.0
 
 def biGRU_big(bs,time_steps,alphabet_size):
   inputs_bits = Input(shape=(time_steps,))
-  x = Embedding(alphabet_size, 32,)(inputs_bits)
-  x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
-  x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=False))(x)
+  x = Embedding(alphabet_size, 16,)(inputs_bits)
+  x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
+  x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=False))(x)
   # model.add(Dense(64, activation='relu'))
   x = Dense(alphabet_size)(x)
 
