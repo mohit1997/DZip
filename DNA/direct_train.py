@@ -1,4 +1,7 @@
 import numpy as np
+import os
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 import keras
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
@@ -166,9 +169,9 @@ noise = 0.0
 
 def biGRU_big(bs,time_steps,alphabet_size):
   inputs_bits = Input(shape=(time_steps,))
-  x = Embedding(alphabet_size, 32,)(inputs_bits)
-  x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
-  x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=False))(x)
+  x = Embedding(alphabet_size, 16,)(inputs_bits)
+  x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
+  x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=False))(x)
   # model.add(Dense(64, activation='relu'))
   x = Dense(alphabet_size)(x)
 
