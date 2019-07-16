@@ -1,7 +1,7 @@
 import numpy as np
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 import keras
 
 class DataGenerator(keras.utils.Sequence):
@@ -53,14 +53,14 @@ class DataGenerator(keras.utils.Sequence):
         else:
             y = self.labels[list_IDs_temp]
             true_lab = keras.utils.to_categorical(y, num_classes=self.n_classes)
-            y = self.model.predict(X, batch_size=len(X))
+            y = self.model.predict(X, batch_size=len(X)) 
             # features = self.intermediate_layer_model.predict(X, batch_size=len(X))
             return X, [y, true_lab, y]
 
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, Model
-from keras.layers import Dense, Bidirectional, Input, add, concatenate
+from keras.layers import Dense, Bidirectional, Input, add, concatenate, Lambda
 from keras.layers import LSTM, Flatten, Conv1D, LocallyConnected1D, CuDNNLSTM, CuDNNGRU, MaxPooling1D, GlobalAveragePooling1D, GlobalMaxPooling1D
 from keras.models import *
 from keras.layers import *
@@ -99,26 +99,27 @@ def res_block(inp, units=512, activation='relu'):
     return out
 
 def resnet(bs, time_steps, alphabet_size):
-    inputs_bits = Input(shape=(time_steps,))
+        inputs_bits = Input(shape=(time_steps,))
+        temp = Input(tensor=tf.constant([5.0]))
+        emb = Embedding(alphabet_size, 64)(inputs_bits)
 
-    emb = Embedding(alphabet_size, 64)(inputs_bits)
+        flat = Flatten()(emb)
+        x = Dense(2048, kernel_regularizer=None)(flat)
 
-    flat = Flatten()(emb)
-    x = Dense(2048, kernel_regularizer=None)(flat)
+        x = res_block(x, 2048, 'relu')
+        x = res_block(x, 2048, 'relu')
 
-    x = res_block(x, 2048, 'relu')
-    x = res_block(x, 2048, 'relu')
+        x = BatchNormalization()(x)
+        x = Activation('relu')(x)
+        x = Dense(2048)(x)
 
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = Dense(2048, name='feats')(x)
-
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = Dense(alphabet_size, activation='softmax', name='probs')(x)
-
-    model = Model(inputs_bits, x)
-    return model
+        x = BatchNormalization()(x)
+        x = Activation('relu')(x)
+        x = Dense(alphabet_size)(x)
+        x = Lambda(lambda array: array[0]/array[1])([x,temp])
+        x = Activation('softmax')(x)
+        model = Model([inputs_bits,temp], x)
+        return model
 
 
 def loss_fn(y_true, y_pred):
@@ -182,6 +183,21 @@ def biGRU_big(bs,time_steps,alphabet_size):
   
   return model
 
+def FC(bs,time_steps,alphabet_size):
+  inputs_bits = Input(shape=(time_steps,))
+  x = Embedding(alphabet_size, 16,)(inputs_bits)
+  x = Flatten()(x)
+  x = Dense(64, activation='relu')(x)
+  x = Dense(alphabet_size)(x)
+
+  s1 = Activation('softmax', name="1")(x)
+  s2 = Activation('softmax', name="2")(x)
+  s3 = Activation('softmax', name="3")(x)
+
+  model = Model(inputs_bits, [s1, s2, s3])
+
+  return model
+
 print("Calling")
 sequence = np.load('output.npy')
 n_classes = len(np.unique(sequence))
@@ -198,7 +214,7 @@ optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=None, d
 model_teacher.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
 model_teacher.load_weights('model')
 
-model_student = biGRU_big(batch_size, sequence_length, n_classes)
+model_student = FC(batch_size, sequence_length, n_classes)
 for l in model_teacher.layers:
     l.trainable = False
 

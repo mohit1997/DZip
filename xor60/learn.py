@@ -1,7 +1,7 @@
 import numpy as np
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 import keras
 
 class DataGenerator(keras.utils.Sequence):
@@ -46,7 +46,7 @@ class DataGenerator(keras.utils.Sequence):
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, Model
-from keras.layers import Dense, Bidirectional, Input, add, concatenate
+from keras.layers import Dense, Bidirectional, Input, add, concatenate, Lambda 
 from keras.layers import LSTM, Flatten, Conv1D, LocallyConnected1D, CuDNNLSTM, CuDNNGRU, MaxPooling1D, GlobalAveragePooling1D, GlobalMaxPooling1D
 from keras.models import *
 from keras.layers import *
@@ -86,7 +86,7 @@ def res_block(inp, units=512, activation='relu'):
 
 def resnet(bs, time_steps, alphabet_size):
 	inputs_bits = Input(shape=(time_steps,))
-
+	temp = Input(tensor=tf.constant([1.0]))
 	emb = Embedding(alphabet_size, 64)(inputs_bits)
 
 	flat = Flatten()(emb)
@@ -101,9 +101,10 @@ def resnet(bs, time_steps, alphabet_size):
 
 	x = BatchNormalization()(x)
 	x = Activation('relu')(x)
-	x = Dense(alphabet_size, activation='softmax')(x)
-
-	model = Model(inputs_bits, x)
+	x = Dense(alphabet_size)(x)
+	x = Lambda(lambda array: array[0]/array[1])([x,temp])
+	x = Activation('softmax')(x)
+	model = Model([inputs_bits,temp], x)
 	return model
 
 
