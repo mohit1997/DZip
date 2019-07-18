@@ -1,7 +1,7 @@
 import numpy as np
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 import keras
 
 class DataGenerator(keras.utils.Sequence):
@@ -146,15 +146,15 @@ def generate_single_output_data(series,batch_size,time_steps):
 		
 def fit_model(X, Y, bs, nb_epoch, student, teacher):
     y = Y
-    decayrate = 2.0/(len(Y) // bs)
-    optim = keras.optimizers.Adam(lr=5e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False)
-    student.compile(loss={'1': loss_fn, '2': loss_fn, '3': 'mse'}, loss_weights=[1.0, 1.0, 1.0], optimizer=optim, metrics=['acc'])
-    checkpoint = ModelCheckpoint("modelstudentbiGRU", monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
-    csv_logger = CSVLogger("log_studentbiGRU.csv", append=True, separator=';')
+    decayrate = 1/(len(Y) // bs)
+    optim = keras.optimizers.SGD(lr=0.1, momentum=0.9, nesterov=True)
+    student.compile(loss={'1': loss_fn, '2': loss_fn, '3': 'mse'}, loss_weights=[1.0, 0.05, 5.0], optimizer=optim, metrics=['acc'])
+    checkpoint = ModelCheckpoint("modelstudentexpbiGRU", monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
+    csv_logger = CSVLogger("log_studentexpbiGRU.csv", append=True, separator=';')
     early_stopping = EarlyStopping(monitor='loss', mode='min', min_delta=0.005, patience=3, verbose=1)
+    lr_manager = OneCycleLR(10**(-2.0), bs, len(y), nb_epoch, end_percentage=0.3)
 
-    callbacks_list = [checkpoint, csv_logger, early_stopping]
-
+    callbacks_list = [checkpoint, csv_logger, early_stopping, lr_manager]
     indices = np.arange(X.shape[-1]).reshape(1, -1)
     train_gen = DataGenerator(X, y, teacher, bs, n_classes, shuffle=True, use_model=True)
     # val_gen = DataGenerator(X, y, teacher, bs, n_classes, True, use_model=False)
@@ -182,6 +182,24 @@ def biGRU_big(bs,time_steps,alphabet_size):
   
   return model
 
+def FC(bs,time_steps,alphabet_size):
+  inputs_bits = Input(shape=(time_steps,))
+  x = Embedding(alphabet_size, 16,)(inputs_bits)
+  x = Flatten()(x)
+  x = Dense(64, activation='relu')(x)
+  x = Dense(8, activation='relu')(x)
+  x = res_block(x, 8, 'relu')
+  x = res_block(x, 8, 'relu')
+  x = Dense(alphabet_size)(x)
+
+  s1 = Activation('softmax', name="1")(x)
+  s2 = Activation('softmax', name="2")(x)
+  s3 = Activation('softmax', name="3")(x)
+
+  model = Model(inputs_bits, [s1, s2, s3])
+
+  return model
+
 print("Calling")
 sequence = np.load('output.npy')
 n_classes = len(np.unique(sequence))
@@ -198,7 +216,7 @@ optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=None, d
 model_teacher.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
 model_teacher.load_weights('model')
 
-model_student = biGRU_big(batch_size, sequence_length, n_classes)
+model_student = FC(batch_size, sequence_length, n_classes)
 for l in model_teacher.layers:
     l.trainable = False
 

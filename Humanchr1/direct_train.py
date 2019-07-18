@@ -145,7 +145,7 @@ def generate_single_output_data(series,batch_size,time_steps):
         
 def fit_model(X, Y, bs, nb_epoch, student, teacher):
     y = Y
-    decayrate = 1.0/(len(Y) // bs)
+    decayrate = 2.0/(len(Y) // bs)
     optim = keras.optimizers.Adam(lr=5e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False, clipnorm=0.05)
     student.compile(loss={'1': loss_fn}, optimizer=optim, metrics=['acc'])
     checkpoint = ModelCheckpoint("directbigru", monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)

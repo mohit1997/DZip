@@ -138,7 +138,7 @@ def fit_model(X, Y, bs, nb_epoch, model):
   csv_logger = CSVLogger("log_teacher.csv", append=True, separator=';')
   early_stopping = EarlyStopping(monitor='loss', mode='min', min_delta=0.005, patience=3, verbose=1)
 
-  lr_manager = OneCycleLR(10**(-1.5), bs, len(y), nb_epoch, end_percentage=0.3)
+  lr_manager = OneCycleLR(10**(-2.0), bs, len(y), nb_epoch, end_percentage=0.3)
 
   callbacks_list = [checkpoint, csv_logger, early_stopping, lr_manager]
   
