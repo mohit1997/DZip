@@ -1,7 +1,7 @@
 import numpy as np
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 import keras
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
@@ -28,6 +28,7 @@ import os
 from keras.callbacks import CSVLogger
 from keras import backend as K
 from clr import LRFinder, OneCycleLR
+from gradient_noise import add_gradient_noise
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
@@ -146,7 +147,8 @@ def generate_single_output_data(series,batch_size,time_steps):
 def fit_model(X, Y, bs, nb_epoch, student, teacher):
     y = Y
     decayrate = 0.5/(len(Y) // bs)
-    optim = keras.optimizers.Adam(lr=5e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False, clipnorm=0.05)
+    optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=None, amsgrad=False)
+    # optim = add_gradient_noise(keras.optimizers.RMSprop)(noise_eta=0.01)
     student.compile(loss={'1': loss_fn}, optimizer=optim, metrics=['acc'])
     checkpoint = ModelCheckpoint("directbigru", monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
     csv_logger = CSVLogger("log_directstudentbigru.csv", append=True, separator=';')
@@ -157,7 +159,7 @@ def fit_model(X, Y, bs, nb_epoch, student, teacher):
     callbacks_list = [checkpoint, csv_logger, early_stopping]
 
     indices = np.arange(X.shape[-1]).reshape(1, -1)
-    train_gen = DataGenerator(X, y, teacher, bs, n_classes, shuffle=True, use_model=False)
+    train_gen = DataGenerator(X, y, teacher, bs, n_classes, shuffle=False, use_model=False)
     # val_gen = DataGenerator(X, y, teacher, bs, n_classes, True, use_model=False)
 
     student.fit_generator(train_gen, epochs=nb_epoch, verbose=1, callbacks=callbacks_list, use_multiprocessing=True, workers=0)
@@ -170,9 +172,9 @@ noise = 0.0
 def biGRU_big(bs,time_steps,alphabet_size):
   inputs_bits = Input(shape=(time_steps,))
   x = Embedding(alphabet_size, 16,)(inputs_bits)
-  x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
+  # x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
   x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=False))(x)
-  # model.add(Dense(64, activation='relu'))
+  x = Dense(32, activation='relu')(x)
   x = Dense(alphabet_size)(x)
 
   s1 = Activation('softmax', name="1")(x)

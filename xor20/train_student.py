@@ -214,7 +214,7 @@ optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=None, d
 model_teacher.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
 model_teacher.load_weights('model')
 
-model_student = FC(batch_size, sequence_length, n_classes)
+model_student = biGRU_big(batch_size, sequence_length, n_classes)
 for l in model_teacher.layers:
     l.trainable = False
 
