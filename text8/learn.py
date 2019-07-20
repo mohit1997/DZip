@@ -1,4 +1,7 @@
 import numpy as np
+import os 
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 import keras
 
 class DataGenerator(keras.utils.Sequence):

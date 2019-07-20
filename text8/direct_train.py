@@ -1,8 +1,8 @@
 import numpy as np
-import keras
-import os 
+import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
+import keras
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, Model
@@ -74,7 +74,7 @@ class DataGenerator(keras.utils.Sequence):
         if self.use_model == False:
             y = self.labels[list_IDs_temp]
             true_lab = keras.utils.to_categorical(y, num_classes=self.n_classes)
-            return X, [true_lab, true_lab]
+            return X, true_lab
         else:
             y = self.labels[list_IDs_temp]
             true_lab = keras.utils.to_categorical(y, num_classes=self.n_classes)
@@ -145,11 +145,11 @@ def generate_single_output_data(series,batch_size,time_steps):
         
 def fit_model(X, Y, bs, nb_epoch, student, teacher):
     y = Y
-    decayrate = 2.0/(len(Y) // bs)
+    decayrate = 1.0/(len(Y) // bs)
     optim = keras.optimizers.Adam(lr=5e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False, clipnorm=0.05)
-    student.compile(loss={'1': loss_fn, '2': loss_fn, '3': 'mse'}, loss_weights=[1.0, 0.01, 5.0], optimizer=optim, metrics=['acc'])
-    checkpoint = ModelCheckpoint("modelstudentbigru", monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
-    csv_logger = CSVLogger("log_studentbigru.csv", append=True, separator=';')
+    student.compile(loss={'1': loss_fn}, optimizer=optim, metrics=['acc'])
+    checkpoint = ModelCheckpoint("directbigru", monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
+    csv_logger = CSVLogger("log_directstudentbigru.csv", append=True, separator=';')
     early_stopping = EarlyStopping(monitor='loss', mode='min', min_delta=0.005, patience=3, verbose=1)
 
     # lr_manager = OneCycleLR(10**(-1.2), bs, len(y), nb_epoch, end_percentage=0.3)
@@ -157,8 +157,8 @@ def fit_model(X, Y, bs, nb_epoch, student, teacher):
     callbacks_list = [checkpoint, csv_logger, early_stopping]
 
     indices = np.arange(X.shape[-1]).reshape(1, -1)
-    train_gen = DataGenerator(X, y, teacher, bs, n_classes, shuffle=True, use_model=True)
-    val_gen = DataGenerator(X, y, teacher, bs, n_classes, True, use_model=False)
+    train_gen = DataGenerator(X, y, teacher, bs, n_classes, shuffle=True, use_model=False)
+    # val_gen = DataGenerator(X, y, teacher, bs, n_classes, True, use_model=False)
 
     student.fit_generator(train_gen, epochs=nb_epoch, verbose=1, callbacks=callbacks_list, use_multiprocessing=True, workers=0)
 
@@ -179,7 +179,7 @@ def biGRU_big(bs,time_steps,alphabet_size):
   s2 = Activation('softmax', name="2")(x)
   s3 = Activation('softmax', name="3")(x)
 
-  model = Model(inputs_bits, [s1, s2, s3])
+  model = Model(inputs_bits, s1)
   
   return model
 
@@ -220,14 +220,16 @@ X, Y = generate_single_output_data(sequence, batch_size, sequence_length)
 print(Y.shape[1])
 
 
-model_teacher = resnet(batch_size, sequence_length, n_classes)
+# model_teacher = resnet(batch_size, sequence_length, n_classes)
 
-optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
-model_teacher.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
-model_teacher.load_weights('model')
+# optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+# model_teacher.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
+# model_teacher.load_weights('model')
 
 model_student = biGRU_big(batch_size, sequence_length, n_classes)
-for l in model_teacher.layers:
-    l.trainable = False
+# for l in model_teacher.layers:
+#     l.trainable = False
+
+model_teacher=None
 
 fit_model(X, Y, batch_size, num_epochs, model_student, model_teacher)
