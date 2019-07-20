@@ -171,10 +171,11 @@ noise = 0.0
 
 def biGRU_big(bs,time_steps,alphabet_size):
   inputs_bits = Input(shape=(time_steps,))
-  x = Embedding(alphabet_size, 16,)(inputs_bits)
+  x = Embedding(alphabet_size, 8,)(inputs_bits)
   # x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
-  x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=False))(x)
-  x = Dense(32, activation='relu')(x)
+  x = Bidirectional(CuDNNGRU(16, stateful=False, return_sequences=True))(x)
+  x = Flatten()(x)  
+  x = Dense(16, activation='relu')(x)
   x = Dense(alphabet_size)(x)
 
   s1 = Activation('softmax', name="1")(x)
