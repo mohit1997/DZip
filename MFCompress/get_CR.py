@@ -33,6 +33,7 @@ if arguments.data[-4:] == ".txt":
 	os.system('echo ">" > header.fa')
 	os.system('cat {} {} > {}'.format('header.fa', arguments.data, filename))
 elif arguments.data[-3:] == ".fa":
+	filename = os.path.basename(arguments.data)
 	pass
 
 with open(arguments.data) as fp:
@@ -51,7 +52,6 @@ with open(arguments.results, 'a') as myFile:
 
 
 os.system("rm {}".format(filename))
-os.system("rm {}".format(filename+".mfc"))
 os.system("rm {}".format("header.fa"))
 
 
