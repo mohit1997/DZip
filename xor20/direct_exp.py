@@ -147,7 +147,7 @@ def generate_single_output_data(series,batch_size,time_steps):
 def fit_model(X, Y, bs, nb_epoch, student, teacher):
     y = Y
     decayrate = 0.5/(len(Y) // bs)
-    optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=None, amsgrad=False, clipnorm=0.1)
+    optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=None, amsgrad=False)
     # optim = add_gradient_noise(keras.optimizers.RMSprop)(noise_eta=0.01)
     student.compile(loss={'1': loss_fn}, optimizer=optim, metrics=['acc'])
     checkpoint = ModelCheckpoint("directbigru", monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
@@ -168,7 +168,7 @@ batch_size=2048
 sequence_length=64
 num_epochs=10
 noise = 0.0
-jump = 16
+jump = 8
 
 def my_shape(input_shape):
     print(np.ceil(float(input_shape[1])/jump))
@@ -178,8 +178,10 @@ def biGRU_big(bs,time_steps,alphabet_size):
   inputs_bits = Input(shape=(time_steps,))
   x   = Embedding(alphabet_size, 8,)(inputs_bits)
   x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
+  x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
+  x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
+  # x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
   # x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
-  x = Lambda(lambda tensor: tensor[:,jump-1::jump,:], output_shape=my_shape)(x)
   x = Flatten()(x)  
   x = Dense(16, activation='relu')(x)
   x = Dense(alphabet_size)(x)
