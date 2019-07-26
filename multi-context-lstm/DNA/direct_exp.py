@@ -167,20 +167,21 @@ batch_size=2048
 sequence_length=64
 num_epochs=10
 noise = 0.0
-jump = 8
+jump = 4
 
 def my_shape(input_shape):
-    print(np.ceil(input_shape[1]/jump))
+    print(np.ceil(float(input_shape[1])/jump))
     return tuple((input_shape[0],int(np.ceil(float(input_shape[1])/jump)),input_shape[2]))
 
 def biGRU_big(bs,time_steps,alphabet_size):
   inputs_bits = Input(shape=(time_steps,))
   x   = Embedding(alphabet_size, 8,)(inputs_bits)
   x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
+  x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
   x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
-  x = Lambda(lambda tensor: tensor[:,jump-1::jump,:], output_shape=my_shape)(x)
+  x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
   x = Flatten()(x)  
-  x = Dense(16, activation='relu')(x)
+  x = Dense(32, activation='relu')(x)
   x = Dense(alphabet_size)(x)
 
   s1 = Activation('softmax', name="1")(x)
