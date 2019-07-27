@@ -6,7 +6,7 @@ import keras
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential, Model
-from keras.layers import Dense, Bidirectional, Input, add, concatenate, Lambda
+from keras.layers import Dense, Bidirectional, Input, add, concatenate, Lambda, TimeDistributed
 from keras.layers import LSTM, Flatten, Conv1D, LocallyConnected1D, CuDNNLSTM, CuDNNGRU, MaxPooling1D, GlobalAveragePooling1D, GlobalMaxPooling1D
 from keras.models import *
 from keras.layers import *
@@ -179,13 +179,15 @@ def biGRU_big(bs,time_steps,alphabet_size):
   x   = Embedding(alphabet_size, 8,)(inputs_bits)
   x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
   x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
+  # x = TimeDistributed(Dense(8, activation='relu'))(x)
   x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
+  # x = TimeDistributed(Dense(8, activation='relu'))(x)
   # x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
   # x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
-  x = Flatten()(x)  
-  x = Dense(16, activation='relu')(x)
-  x = Dense(alphabet_size)(x)
-
+  flat = Flatten()(x)
+  x = Dense(16, activation='relu')(flat)
+  x = Add()([Dense(alphabet_size)(x),  Dense(alphabet_size)(flat)])
+  
   s1 = Activation('softmax', name="1")(x)
   s2 = Activation('softmax', name="2")(x)
   s3 = Activation('softmax', name="3")(x)
