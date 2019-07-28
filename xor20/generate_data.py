@@ -8,9 +8,9 @@ def get_argument_parser():
                         help='the type of data that needs to be generated')
     parser.add_argument('--num_samples', type=int, default=10000000,
                         help='length of the sequence to be generated')
-    parser.add_argument('--markovity', type=int, default=20,
+    parser.add_argument('--markovity', type=int, default=100,
                         help='Step for Markovity')
-    parser.add_argument('--file_name', type=str, default='files_to_be_compressed/xor20.txt',
+    parser.add_argument('--file_name', type=str, default='files_to_be_compressed/xor100.txt',
                         help='The name of the output file')
     parser.add_argument('--info_file', type=str, default='input_info.txt',
                         help='Name of the info file')

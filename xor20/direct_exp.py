@@ -159,13 +159,13 @@ def fit_model(X, Y, bs, nb_epoch, student, teacher):
     callbacks_list = [checkpoint, csv_logger, early_stopping]
 
     indices = np.arange(X.shape[-1]).reshape(1, -1)
-    train_gen = DataGenerator(X, y, teacher, bs, n_classes, shuffle=False, use_model=False)
+    train_gen = DataGenerator(X, y, teacher, bs, n_classes, shuffle=True, use_model=False)
     # val_gen = DataGenerator(X, y, teacher, bs, n_classes, True, use_model=False)
 
     student.fit_generator(train_gen, epochs=nb_epoch, verbose=1, callbacks=callbacks_list, use_multiprocessing=True, workers=0)
 
 batch_size=2048
-sequence_length=64
+sequence_length=128
 num_epochs=10
 noise = 0.0
 jump = 8
