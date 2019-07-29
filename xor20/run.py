@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import json
 
-input_file = "./files_to_be_compressed/xor20-30.txt"
+input_file = "./files_to_be_compressed/xor20-hmm40.txt"
 param_file = "params"
 output_file = "output"
 
