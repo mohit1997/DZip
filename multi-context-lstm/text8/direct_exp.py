@@ -191,32 +191,6 @@ def biGRU_big(bs,time_steps,alphabet_size):
   
   return model
 
-def LSTMhybrid(bs,time_steps,alphabet_size):
-  inputs_bits = Input(shape=(time_steps,))
-  x = Embedding(alphabet_size, 8,)(inputs_bits)
-#   x = Bidirectional(CuDNNGRU(16, stateful=False, return_sequences=True))(x)
-  x = Flatten()(x)
-  x = Dense(256)(x)
-  x = res_block(x, 256, 'relu')
-  x = Dense(128)(x)
-  x = res_block(x, 128, 'relu')
-  x = res_block(x, 128, 'relu')
-  x = res_block(x, 128, 'relu')
-  x = BatchNormalization()(x)
-  x = Activation('relu')(x)
-  x = Dense(32)(x)
-
-  x = BatchNormalization()(x)
-  x = Activation('relu')(x)
-  x = Dense(alphabet_size)(x)
-
-  s1 = Activation('softmax', name="1")(x)
-  s2 = Activation('softmax', name="2")(x)
-  s3 = Activation('softmax', name="3")(x)
-
-  model = Model(inputs_bits, [s1, s2, s3])
-
-  return model
 
 print("Calling")
 sequence = np.load('output.npy')
