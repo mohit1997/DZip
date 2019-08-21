@@ -140,7 +140,7 @@ def generate_single_output_data(series,batch_size,time_steps):
         
 def fit_model(X, Y, bs, nb_epoch, student, teacher):
     y = Y
-    decayrate = 64*2.0/(len(Y) // bs)
+    decayrate = 16*2.0/(len(Y) // bs)
     optim = keras.optimizers.Adam(lr=5e-4, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False)
     student.compile(loss={'1': loss_fn}, optimizer=optim, metrics=['acc'])
     checkpoint = ModelCheckpoint("modeltransferexp", monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
@@ -199,13 +199,14 @@ def biGRU_big(bs,time_steps,alphabet_size):
   s3 = Activation('softmax', name="prev3")(x)
 
   model_prev = Model(inputs_bits, s1)
+  emb = Embedding(alphabet_size, 32)(inputs_bits)
   d = Bidirectional(CuDNNGRU(256, stateful=False, return_sequences=True))(emb)
-  d = Bidirectional(CuDNNGRU(256, stateful=False, return_sequences=True))(d)
-  d = Lambda(lambda tensor: tensor[:,jump-1::jump,:], output_shape=my_shape)(d)
+  d = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(d)
   d = Flatten()(d)
   flat2 = d = Concatenate()([d, flat])
   d = Dense(1024, activation='relu')(d)
   next_layer = Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d), new_logits])
+  next_layer = Dense(alphabet_size)(next_layer)
   s1 = Activation('softmax', name="1")(next_layer)
   model = Model(inputs_bits, s1)
 
