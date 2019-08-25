@@ -25,13 +25,13 @@ np.random.seed(0)
 tf.set_random_seed(0)
 
 
-def fit_model(X, Y, bs, nb_epoch, student, teacher):
+def fit_model(X, Y, bs, nb_epoch, preprocessor, num_classes):
     y = Y
     mul = len(Y)/5e7
     decayrate = mul/(len(Y) // bs)
     optim = keras.optimizers.Adam(lr=5e-3, beta_1=0.9, beta_2=0.999, epsilon=None, amsgrad=False, clipnorm=0.1)
     # optim = add_gradient_noise(keras.optimizers.RMSprop)(noise_eta=0.01)
-    student.compile(loss={'1': loss_fn}, optimizer=optim, metrics=['acc'])
+    preprocessor.compile(loss={'1': loss_fn}, optimizer=optim, metrics=['acc'])
     checkpoint = ModelCheckpoint(FLAGS.file_name + "_" + FLAGS.model, monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
     csv_logger = CSVLogger("log_{}_{}_PRNN".format(FLAGS.file_name, FLAGS.model), append=True, separator=',')
     early_stopping = EarlyStopping(monitor='loss', mode='min', min_delta=0.005, patience=3, verbose=1)
@@ -40,11 +40,10 @@ def fit_model(X, Y, bs, nb_epoch, student, teacher):
 
     callbacks_list = [checkpoint, csv_logger, early_stopping]
 
-    indices = np.arange(X.shape[-1]).reshape(1, -1)
-    train_gen = DataGenerator(X, y, teacher, bs, n_classes, shuffle=True, use_model=False)
+    train_gen = DataGenerator(X, y, bs, num_classes, shuffle=True, use_model=False)
     # val_gen = DataGenerator(X, y, teacher, bs, n_classes, True, use_model=False)
 
-    return student.fit_generator(train_gen, epochs=nb_epoch, verbose=1, callbacks=callbacks_list, use_multiprocessing=True, workers=0)
+    return preprocessor.fit_generator(train_gen, epochs=nb_epoch, verbose=1, callbacks=callbacks_list, use_multiprocessing=True, workers=0)
 
 batch_size=2048
 sequence_length=64
@@ -88,11 +87,9 @@ print(Y.shape[1])
 
 toprint = [FLAGS.file_name, len(sequence), FLAGS.model]
 
-model_student = eval(FLAGS.model)(batch_size, sequence_length, n_classes)
+PRNN = eval(FLAGS.model)(batch_size, sequence_length, n_classes)
 
-model_teacher=None
-
-out = fit_model(X, Y, batch_size, num_epochs, model_student, model_teacher)
+out = fit_model(X, Y, batch_size, num_epochs, PRNN, n_classes)
 toprint.append(out.history['loss'][-1])
 
 with open(FLAGS.log_file, 'a') as myFile:

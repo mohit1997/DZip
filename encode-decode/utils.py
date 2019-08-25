@@ -8,15 +8,13 @@ tf.set_random_seed(0)
 
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, inputs, labels, model, batch_size=32, n_classes=10, shuffle=True, use_model=False):
+    def __init__(self, inputs, labels, batch_size=32, n_classes=10, shuffle=True, use_model=False):
         # 'Initialization'
         self.batch_size = batch_size
-        self.model = model
         self.inputs = inputs
         self.labels = labels
         self.n_classes = n_classes
         self.shuffle = shuffle
-        self.use_model = use_model
 
         # layer_name = 'probs'
         # self.intermediate_layer_model = Model(inputs=model.input,
@@ -48,18 +46,9 @@ class DataGenerator(keras.utils.Sequence):
     def __data_generation(self, list_IDs_temp):
 
         X = self.inputs[list_IDs_temp]
-        if self.use_model == False:
-            y = self.labels[list_IDs_temp]
-            true_lab = keras.utils.to_categorical(y, num_classes=self.n_classes)
-            return X, true_lab
-        else:
-            y = self.labels[list_IDs_temp]
-            true_lab = keras.utils.to_categorical(y, num_classes=self.n_classes)
-            y = self.model.predict(X, batch_size=len(X))
-            # features = self.intermediate_layer_model.predict(X, batch_size=len(X))
-            return X, [y, true_lab, y]
-
-
+        y = self.labels[list_IDs_temp]
+        true_lab = keras.utils.to_categorical(y, num_classes=self.n_classes)
+        return X, true_lab
 
 def loss_fn(y_true, y_pred):
     return 1/np.log(2) * K.categorical_crossentropy(y_true, y_pred)
