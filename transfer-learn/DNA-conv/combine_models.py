@@ -9,7 +9,7 @@ def strided_app(a, L, S):  # Window len = L, Stride len/stepsize = S
 l1 = np.load('transfer_explosslist.npy')
 l2 = np.load('loss2.npy')
 
-window = 10
+window = 2
 
 loss1 = np.mean(strided_app(l1, window, window), axis=1)
 loss2 = np.mean(strided_app(l2, window, window), axis=1)
