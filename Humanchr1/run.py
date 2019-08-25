@@ -3,6 +3,7 @@ import numpy as np
 import json
 
 input_file = "./files_to_be_compressed/chr1.txt"
+updated_file = "./files_to_be_compressed/chr1_truncated.txt" 
 param_file = "params"
 output_file = "output"
 truncate = int(100e6)
@@ -11,6 +12,10 @@ print("Truncate data to {}".format(truncate))
 
 with open(input_file) as fp:
     data = fp.read()
+
+with open(updated_file, 'w+') as fp:
+    fp.write(data[:truncate])
+
 
 data = data[:truncate]
 
