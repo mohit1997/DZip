@@ -40,6 +40,19 @@ import tempfile
 import shutil
 import sys
 
+# 1. Set the `PYTHONHASHSEED` environment variable at a fixed value
+import os
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
+os.environ['PYTHONHASHSEED']=str(0)
+
+# 2. Set the `python` built-in pseudo-random generator at a fixed value
+import random
+random.seed(0)
+
+np.random.seed(0)
+tf.set_random_seed(0)
+
 parser = argparse.ArgumentParser(description='Input')
 parser.add_argument('-model', action='store', dest='model_weights_file',
                     help='model file')
@@ -51,9 +64,12 @@ parser.add_argument('-input', action='store', dest='file_prefix',
                     help='compressed file')
 parser.add_argument('-output', action='store',dest='output_file',
                     help='decompressed_file')
+parser.add_argument('-gpu', action='store', dest='gpu_id', default="1",
+                    help='params file')
 
 args = parser.parse_args()
 
+os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
 
 def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
     assert inputs.shape[0] == targets.shape[0]
@@ -71,15 +87,18 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
         yield inputs[excerpt], targets[excerpt]
 
 def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
-	model = eval(model_name)(bs, timesteps, alphabet_size)
-	model.load_weights(args.model_weights_file)
-
+	ARNN, PRNN = eval(model_name)(bs, timesteps, alphabet_size)
+        PRNN.load_weights(args.model_weights_file)
+	
         series = np.zeros((length), dtype=np.uint8)
         data = strided_app(series, timesteps+1, 1)
-
 	X = data[:, :-1]
 	y_original = data[:, -1:]
 	l = int(len(X)/bs)*bs
+
+        decayrate = 32*2.0/(len(X) // bs)
+        optim = keras.optimizers.Adam(lr=5e-4, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False)
+        ARNN.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.1], optimizer=optim, metrics=['acc'])
 
 	f = open(args.file_prefix + ".dzip", 'rb')
 	bitin = arithmeticcoding_fast.BitInputStream(f)
@@ -90,28 +109,36 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	for j in range(timesteps):
 		series[j] = dec.read(cumul, alphabet_size)
 
-	cumul = np.zeros((1, alphabet_size+1), dtype = np.uint64)
+	cumul = np.zeros((1, alphabet_size+1), dtype = np.int64)
 	index = timesteps
 	for bx, by in iterate_minibatches(X[:l], y_original[:l], 1):
-		prob = model.predict(bx, batch_size=1)
+		prob, _ = ARNN.predict(bx, batch_size=1)
 		cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
 		series[index] = dec.read(cumul[0, :], alphabet_size)
 		symbols_read = index-timesteps + 1
 		if symbols_read % bs == 0:
-			train_x = X[:symbols_read]; train_y = y_original[:symbols_read]
+			# print(symbols_read-bs, symbols_read)
+			train_x = X[symbols_read-bs:symbols_read]
+			train_y = keras.utils.to_categorical(y_original[symbols_read-bs:symbols_read], num_classes=alphabet_size)
+			ARNN.train_on_batch(train_x, [train_y, train_y])
 		index = index+1
+	
+	
 	if len(X[l:]) > 0:
 		for bx, by in iterate_minibatches(X[l:], y_original[l:], 1):
-			prob = model.predict(bx, batch_size=1)
+			prob, _ = ARNN.predict(bx, batch_size=1)
 			cumul = np.zeros((1, alphabet_size+1), dtype = np.uint64)
 			cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
 			series[index] = dec.read(cumul[0, :], alphabet_size)
 			index = index+1
+	np.save('test', series)
 	bitin.close()
 	f.close()
 	return series
 
 def main():
+    np.random.seed(0)
+    tf.set_random_seed(0)
     with open(args.file_prefix +".params", 'r') as f:
         param_dict = json.load(f)
     

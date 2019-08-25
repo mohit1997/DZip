@@ -38,6 +38,17 @@ from models import *
 from utils import *
 import tempfile
 import shutil
+# 1. Set the `PYTHONHASHSEED` environment variable at a fixed value
+import os
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ['PYTHONHASHSEED']=str(0)
+
+# 2. Set the `python` built-in pseudo-random generator at a fixed value
+import random
+random.seed(0)
+
+np.random.seed(0)
+tf.set_random_seed(0)
 
 parser = argparse.ArgumentParser(description='Input')
 parser.add_argument('-model', action='store', dest='model_weights_file',
@@ -52,8 +63,12 @@ parser.add_argument('-data_params', action='store', dest='params_file',
                     help='params file')
 parser.add_argument('-output', action='store',dest='output_file_prefix',
                     help='compressed file name')
+parser.add_argument('-gpu', action='store', dest='gpu_id', default="1",
+                    help='params file')
 
 args = parser.parse_args()
+
+os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu_id
 
 
 def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
@@ -72,9 +87,12 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
         yield inputs[excerpt], targets[excerpt]
 
 def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
-	model = eval(model_name)(bs, timesteps, alphabet_size)
-	model.load_weights(args.model_weights_file)
+	ARNN, PRNN = eval(model_name)(bs, timesteps, alphabet_size)
+	PRNN.load_weights(args.model_weights_file)
 
+	decayrate = 32*2.0/(len(X) // bs)
+	optim = keras.optimizers.Adam(lr=5e-4, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False)
+	ARNN.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.1], optimizer=optim, metrics=['acc'])
 	l = int(len(X)/bs)*bs
 
 	f = open(args.file_prefix, 'wb')
@@ -85,24 +103,29 @@ def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
 	cumul[1:] = np.cumsum(prob*10000000 + 1)
 	for j in range(timesteps):
 		enc.write(cumul, X[0, j])
-	cumul = np.zeros((bs, alphabet_size+1), dtype = np.uint64)
+	cumul = np.zeros((1, alphabet_size+1), dtype = np.uint64)
 	for bx, by in iterate_minibatches(X[:l], y_original[:l], bs):
-		prob = model.predict(bx, batch_size=bs)
-		cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
 		for j in range(bs):
-			enc.write(cumul[j, :], int(by[j]))
+			prob, _ = ARNN.predict(bx[j:j+1], batch_size=1)
+			cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
+			enc.write(cumul[0, :], int(by[j]))
+		onehot = keras.utils.to_categorical(by, num_classes=alphabet_size)
+		ARNN.train_on_batch(bx, [onehot, onehot])
 	if len(X[l:]) > 0:
-		prob = model.predict(X[l:], batch_size=len(X[l:]))
-		cumul = np.zeros((len(X[l:]), alphabet_size+1), dtype = np.uint64)
-		cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
-		for x, y in zip(cumul, y_original[l:]):
-			enc.write(x, int(y))
+		# prob, _ = ARNN.predict(X[l:], batch_size=len(X[l:]))
+		cumul = np.zeros((1, alphabet_size+1), dtype = np.uint64)
+		for i in range(len(y_original[l:])):
+			prob, _ = ARNN.predict(X[l:][i:i+1], batch_size=1)
+			cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
+			enc.write(cumul[0, :], int(y_original[l:][i]))
 
 	enc.finish()
 	bitout.close()
 	f.close()
 
 def main():
+    np.random.seed(0)
+    tf.set_random_seed(0)
     args.file_prefix = args.output_file_prefix + ".dzip"
     sequence = np.load(args.sequence_npy_file + ".npy")[:500]
     n_classes = len(np.unique(sequence))
