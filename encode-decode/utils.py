@@ -59,8 +59,6 @@ def strided_app(a, L, S):  # Window len = L, Stride len/stepsize = S
     return np.lib.stride_tricks.as_strided(a, shape=(nrows, L), strides=(S * n, n), writeable=False)
 
 def generate_single_output_data(series,batch_size,time_steps):
-    series = series.reshape(-1, 1)
-
     series = series.reshape(-1)
     series = series.copy()
     data = strided_app(series, time_steps+1, 1)

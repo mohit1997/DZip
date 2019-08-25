@@ -38,6 +38,7 @@ from models import *
 from utils import *
 import tempfile
 import shutil
+import sys
 
 parser = argparse.ArgumentParser(description='Input')
 parser.add_argument('-model', action='store', dest='model_weights_file',
@@ -46,12 +47,10 @@ parser.add_argument('-model_name', action='store', dest='model_name',
                     help='model file')
 parser.add_argument('-batch_size', action='store', dest='batch_size', type=int,
                     help='model file')
-parser.add_argument('-data', action='store', dest='sequence_npy_file',
-                    help='data file')
-parser.add_argument('-data_params', action='store', dest='params_file',
-                    help='params file')
-parser.add_argument('-output', action='store',dest='output_file_prefix',
-                    help='compressed file name')
+parser.add_argument('-input', action='store', dest='file_prefix',
+                    help='compressed file')
+parser.add_argument('-output', action='store',dest='output_file',
+                    help='decompressed_file')
 
 args = parser.parse_args()
 
@@ -71,60 +70,63 @@ def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
             excerpt = slice(start_idx, start_idx + batchsize)
         yield inputs[excerpt], targets[excerpt]
 
-def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
+def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	model = eval(model_name)(bs, timesteps, alphabet_size)
 	model.load_weights(args.model_weights_file)
 
+        series = np.zeros((length), dtype=np.uint8)
+        data = strided_app(series, timesteps+1, 1)
+
+	X = data[:, :-1]
+	y_original = data[:, -1:]
 	l = int(len(X)/bs)*bs
 
-	f = open(args.file_prefix, 'wb')
-	bitout = arithmeticcoding_fast.BitOutputStream(f)
-	enc = arithmeticcoding_fast.ArithmeticEncoder(32, bitout)
+	f = open(args.file_prefix + ".dzip", 'rb')
+	bitin = arithmeticcoding_fast.BitInputStream(f)
+	dec = arithmeticcoding_fast.ArithmeticDecoder(32, bitin)
 	prob = np.ones(alphabet_size)/alphabet_size
 	cumul = np.zeros(alphabet_size+1, dtype = np.uint64)
 	cumul[1:] = np.cumsum(prob*10000000 + 1)
 	for j in range(timesteps):
-		enc.write(cumul, X[0, j])
-	cumul = np.zeros((bs, alphabet_size+1), dtype = np.uint64)
-	for bx, by in iterate_minibatches(X[:l], y_original[:l], bs):
-		prob = model.predict(bx, batch_size=bs)
-		cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
-		for j in range(bs):
-			enc.write(cumul[j, :], int(by[j]))
-	if len(X[l:]) > 0:
-		prob = model.predict(X[l:], batch_size=len(X[l:]))
-		cumul = np.zeros((len(X[l:]), alphabet_size+1), dtype = np.uint64)
-		cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
-		for x, y in zip(cumul, y_original[l:]):
-			enc.write(x, int(y))
+		series[j] = dec.read(cumul, alphabet_size)
 
-	enc.finish()
-	bitout.close()
+	cumul = np.zeros((1, alphabet_size+1), dtype = np.uint64)
+	index = timesteps
+	for bx, by in iterate_minibatches(X[:l], y_original[:l], 1):
+		prob = model.predict(bx, batch_size=1)
+		cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
+		series[index] = dec.read(cumul[0, :], alphabet_size)
+		index = index+1
+	if len(X[l:]) > 0:
+		for bx, by in iterate_minibatches(X[l:], y_original[l:], 1):
+			prob = model.predict(bx, batch_size=1)
+			cumul = np.zeros((1, alphabet_size+1), dtype = np.uint64)
+			cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
+			series[index] = dec.read(cumul[0, :], alphabet_size)
+			index = index+1
+	bitin.close()
 	f.close()
+	return series
 
 def main():
-    args.file_prefix = args.output_file_prefix + ".dzip"
-    sequence = np.load(args.sequence_npy_file + ".npy")[:500]
-    n_classes = len(np.unique(sequence))
-    batch_size = args.batch_size
-    timesteps = 64
-        
-    with open(args.params_file, 'r') as f:
-        params = json.load(f)
+    with open(args.file_prefix +".params", 'r') as f:
+        param_dict = json.load(f)
+    
+    len_series = param_dict['len_series']
+    batch_size = param_dict['bs']
+    timesteps = param_dict['timesteps']
+    id2char_dict = param_dict['id2char_dict'] 
+    n_classes = len(id2char_dict)
+    print(n_classes, len_series)
+    
+    series = np.zeros(len_series,dtype=np.uint8)
+    series = predict_lstm(len_series, timesteps, batch_size, n_classes, args.model_name)
 
-    params['len_series'] = len(sequence)
-    params['bs'] = batch_size
-    params['timesteps'] = timesteps
-
-    with open(args.output_file_prefix+'.params','w') as f:
-        json.dump(params, f, indent=4)
-
-    sequence = sequence.reshape(-1)
-    series = sequence.copy()
-    data = strided_app(series, timesteps+1, 1)
-    X = data[:, :-1]
-    Y_original = data[:, -1:]
-    predict_lstm(X, Y_original, timesteps, batch_size, n_classes, args.model_name) 
+    f = open(args.output_file,'w')
+    print(id2char_dict)
+    print(series[:10])
+    f.write(''.join([id2char_dict[str(s)] for s in series]))
+    f.close()
 
 
 if __name__ == "__main__":
