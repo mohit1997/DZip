@@ -197,8 +197,9 @@ def FC(bs,time_steps,alphabet_size):
   inputs_bits = Input(shape=(time_steps,))
   x  = Embedding(alphabet_size, 8,)(inputs_bits)
   flat = Flatten()(x)
-  x = Dense(1024, activation='relu')(flat)
-  x = Dense(64, activation='relu')(x)
+  x = Dense(128, activation='relu')(flat)
+  x = Dense(128, activation='relu')(x)
+  x = Dense(alphabet_size)(x)
 
   s1 = Activation('softmax', name="1")(x)
 
