@@ -96,6 +96,9 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 		prob = model.predict(bx, batch_size=1)
 		cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
 		series[index] = dec.read(cumul[0, :], alphabet_size)
+		symbols_read = index-timesteps + 1
+		if symbols_read % bs == 0:
+			train_x = X[:symbols_read]; train_y = y_original[:symbols_read]
 		index = index+1
 	if len(X[l:]) > 0:
 		for bx, by in iterate_minibatches(X[l:], y_original[l:], 1):
