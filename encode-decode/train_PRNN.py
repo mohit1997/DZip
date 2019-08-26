@@ -64,10 +64,13 @@ def get_argument_parser():
                         help='Name for the log file')
     parser.add_argument('--model', type=str, default='biGRU_jump',
                         help='Name for the log file')
+    parser.add_argument('--gpu', type=str, default='0',
+                        help='Name for the log file')
     return parser
 
 parser = get_argument_parser()
 FLAGS = parser.parse_args()
+os.environ["CUDA_VISIBLE_DEVICES"]=FLAGS.gpu
 
 if not os.path.isfile(FLAGS.log_file):
     with open(FLAGS.log_file, 'a') as myFile:
