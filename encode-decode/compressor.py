@@ -63,13 +63,17 @@ parser.add_argument('-data_params', action='store', dest='params_file',
                     help='params file')
 parser.add_argument('-output', action='store',dest='output_file_prefix',
                     help='compressed file name')
-parser.add_argument('-gpu', action='store', dest='gpu_id', default="1",
+parser.add_argument('-gpu', action='store', dest='gpu_id', default="",
                     help='params file')
 
 args = parser.parse_args()
 
-os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu_id
+os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
 
+from keras import backend as K
+session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+K.set_session(sess)
 
 def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
     assert inputs.shape[0] == targets.shape[0]
@@ -104,11 +108,14 @@ def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
 	for j in range(timesteps):
 		enc.write(cumul, X[0, j])
 	cumul = np.zeros((1, alphabet_size+1), dtype = np.uint64)
+	progress = 0
 	for bx, by in iterate_minibatches(X[:l], y_original[:l], bs):
 		for j in range(bs):
 			prob, _ = ARNN.predict(bx[j:j+1], batch_size=1)
 			cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
 			enc.write(cumul[0, :], int(by[j]))
+			progress = progress + 1
+			print(progress)
 		onehot = keras.utils.to_categorical(by, num_classes=alphabet_size)
 		ARNN.train_on_batch(bx, [onehot, onehot])
 	if len(X[l:]) > 0:
@@ -124,10 +131,8 @@ def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
 	f.close()
 
 def main():
-    np.random.seed(0)
-    tf.set_random_seed(0)
     args.file_prefix = args.output_file_prefix + ".dzip"
-    sequence = np.load(args.sequence_npy_file + ".npy")[:500]
+    sequence = np.load(args.sequence_npy_file + ".npy")[:400]
     n_classes = len(np.unique(sequence))
     batch_size = args.batch_size
     timesteps = 64

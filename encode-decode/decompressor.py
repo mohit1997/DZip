@@ -43,7 +43,6 @@ import sys
 # 1. Set the `PYTHONHASHSEED` environment variable at a fixed value
 import os
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
 os.environ['PYTHONHASHSEED']=str(0)
 
 # 2. Set the `python` built-in pseudo-random generator at a fixed value
@@ -64,12 +63,17 @@ parser.add_argument('-input', action='store', dest='file_prefix',
                     help='compressed file')
 parser.add_argument('-output', action='store',dest='output_file',
                     help='decompressed_file')
-parser.add_argument('-gpu', action='store', dest='gpu_id', default="1",
+parser.add_argument('-gpu', action='store', dest='gpu_id', default="",
                     help='params file')
 
 args = parser.parse_args()
 
 os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
+
+from keras import backend as K
+session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+K.set_session(sess)
 
 def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
     assert inputs.shape[0] == targets.shape[0]
@@ -90,7 +94,7 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	ARNN, PRNN = eval(model_name)(bs, timesteps, alphabet_size)
         PRNN.load_weights(args.model_weights_file)
 	
-        series = np.zeros((length), dtype=np.uint8)
+        series = np.zeros((length), dtype=np.int64)
         data = strided_app(series, timesteps+1, 1)
 	X = data[:, :-1]
 	y_original = data[:, -1:]
@@ -137,8 +141,6 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	return series
 
 def main():
-    np.random.seed(0)
-    tf.set_random_seed(0)
     with open(args.file_prefix +".params", 'r') as f:
         param_dict = json.load(f)
     
