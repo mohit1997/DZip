@@ -13,7 +13,7 @@
 # https://www.nayuki.io/page/reference-arithmetic-coding
 # https://github.com/nayuki/Reference-arithmetic-coding
 #
- 
+from __future__ import print_function 
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import OneHotEncoder
@@ -126,6 +126,9 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 			train_y = keras.utils.to_categorical(y_original[symbols_read-bs:symbols_read], num_classes=alphabet_size)
 			ARNN.train_on_batch(train_x, [train_y, train_y])
 		index = index+1
+		sys.stdout.flush()
+                print("{}/{}".format(index, length), end="\r")
+
 	
 	
 	if len(X[l:]) > 0:
@@ -135,6 +138,8 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 			cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
 			series[index] = dec.read(cumul[0, :], alphabet_size)
 			index = index+1
+			sys.stdout.flush()
+			print("{}/{}".format(index, length), end="\r")
 	np.save('test', series)
 	bitin.close()
 	f.close()
