@@ -94,7 +94,7 @@ def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
 	ARNN, PRNN = eval(model_name)(bs, timesteps, alphabet_size)
 	PRNN.load_weights(args.model_weights_file)
 
-	decayrate = 32*2.0/(len(X) // bs)
+	decayrate = 32*2.0/(len(X) // bs + 1)
 	optim = keras.optimizers.Adam(lr=5e-4, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False)
 	ARNN.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.1], optimizer=optim, metrics=['acc'])
 	l = int(len(X)/bs)*bs
@@ -133,7 +133,7 @@ def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
 
 def main():
     args.file_prefix = args.output_file_prefix + ".dzip"
-    sequence = np.load(args.sequence_npy_file + ".npy")[:1000]
+    sequence = np.load(args.sequence_npy_file + ".npy")
     n_classes = len(np.unique(sequence))
     batch_size = args.batch_size
     timesteps = 64

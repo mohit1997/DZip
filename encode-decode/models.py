@@ -29,7 +29,7 @@ def biGRU_big(bs,time_steps,alphabet_size):
      print(np.ceil(float(input_shape[1])/jump))
      return tuple((input_shape[0],int(np.ceil(float(input_shape[1])/jump)),input_shape[2]))
 
-  if alphabet_size == 2:
+  if alphabet_size >= 1 and alphabet_size <=3:
       inputs_bits = Input(shape=(time_steps,))
       x = Embedding(alphabet_size, 8,)(inputs_bits)
       x = Bidirectional(GRU(8, stateful=False, return_sequences=True, reset_after=True))(x)
@@ -119,23 +119,44 @@ def biGRU_jump(bs,time_steps,alphabet_size):
      print(np.ceil(float(input_shape[1])/jump))
      return tuple((input_shape[0],int(np.ceil(float(input_shape[1])/jump)),input_shape[2]))
 
-  inputs_bits = Input(shape=(time_steps,))
-  x   = Embedding(alphabet_size, 8,)(inputs_bits)
-  x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
-  # x = TimeDistributed(Dense(8, activation='relu'))(x)
-  x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
-  # x = TimeDistributed(Dense(8, activation='relu'))(x)
-  x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
-  # x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
-  flat = Flatten()(x)
-  x = Dense(16, activation='relu')(flat)
-  x = Add()([Dense(alphabet_size)(x),  Dense(alphabet_size)(flat)])
-  
-  s1 = Activation('softmax', name="1")(x)
+  if alphabet_size >= 1 and alphabet_size <=3:
+      inputs_bits = Input(shape=(time_steps,))
+      x = Embedding(alphabet_size, 8,)(inputs_bits)
+      x = Bidirectional(GRU(8, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Bidirectional(GRU(8, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
+      flat = Flatten()(x)
+      prelogits = x = Dense(16, activation='relu')(flat)
+      x = Add()([Dense(alphabet_size)(x),  Dense(alphabet_size)(flat)])
+      s1 = Activation('softmax', name="1")(x)
 
-  model = Model(inputs_bits, s1)
+      return Model(inputs_bits, s1) 
   
-  return model
+  if alphabet_size >= 4 and alphabet_size <=8:
+      inputs_bits = Input(shape=(time_steps,))
+      x = Embedding(alphabet_size, 8,)(inputs_bits)
+      x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
+      x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
+      flat = Flatten()(x)
+      prelogits = x = Dense(16, activation='relu')(flat)
+      x = Add()([Dense(alphabet_size)(x),  Dense(alphabet_size)(flat)])
+      s1 = Activation('softmax', name="1")(x)
+
+      return Model(inputs_bits, s1)
+
+  if alphabet_size >= 10:
+      inputs_bits = Input(shape=(time_steps,))
+      x = Embedding(alphabet_size, 16,)(inputs_bits)
+      x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
+      x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
+      flat = Flatten()(x)
+      prelogits = x = Dense(128, activation='relu')(flat)
+      x = Add()([Dense(alphabet_size)(x),  Dense(alphabet_size)(flat)])
+      s1 = Activation('softmax', name="1")(x)
+
+      return Model(inputs_bits, s1)
 
 def biGRU(bs,time_steps,alphabet_size):
   inputs_bits = Input(shape=(time_steps,))
