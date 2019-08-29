@@ -2,7 +2,7 @@ import sys
 import numpy as np
 import json
 import argparse
-
+import os
 
 def get_argument_parser():
     parser = argparse.ArgumentParser();
@@ -15,13 +15,14 @@ parser = get_argument_parser()
 FLAGS = parser.parse_args()
 
 input_file = FLAGS.file_name
-param_file = "params"
-output_file = "output"
+base_name = os.path.basename(input_file)
+param_file = "params_" + os.path.splitext(base_name)[0]
+output_file = os.path.splitext(base_name)[0]
 
 with open(input_file) as fp:
     data = fp.read()
 
-print(len(data))
+print("Seq Length {}".format(len(data)))
 vals = list(set(data))
 vals.sort()
 print(vals)
@@ -39,7 +40,7 @@ print(id2char_dict)
 out = [char2id_dict[c] for c in data]
 integer_encoded = np.array(out)
 integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
-print(integer_encoded[:10])
+print(list(integer_encoded[:10, 0]))
 print(data[:10])
 
 np.save(output_file, integer_encoded)
