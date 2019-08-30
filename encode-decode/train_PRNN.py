@@ -47,7 +47,6 @@ def fit_model(X, Y, bs, nb_epoch, preprocessor, num_classes):
 
 batch_size=2048
 sequence_length=64
-num_epochs=5
 noise = 0.0
 
 #def my_shape(input_shape):
@@ -66,10 +65,13 @@ def get_argument_parser():
                         help='Name for the log file')
     parser.add_argument('--gpu', type=str, default='0',
                         help='Name for the log file')
+    parser.add_argument('--epochs', type=int, default=5,
+                        help='Name for the log file')
     return parser
 
 parser = get_argument_parser()
 FLAGS = parser.parse_args()
+num_epochs=FLAGS.epochs
 os.environ["CUDA_VISIBLE_DEVICES"]=FLAGS.gpu
 
 if not os.path.isfile(FLAGS.log_file):
@@ -93,7 +95,7 @@ toprint = [FLAGS.file_name, len(sequence), FLAGS.model]
 PRNN = eval(FLAGS.model)(batch_size, sequence_length, n_classes)
 
 out = fit_model(X, Y, batch_size, num_epochs, PRNN, n_classes)
-toprint.append(out.history['loss'][-1])
+toprint.append(np.min(out.history['loss']))
 
 with open(FLAGS.log_file, 'a') as myFile:
     writer = csv.writer(myFile)

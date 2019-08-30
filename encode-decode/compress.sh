@@ -9,6 +9,7 @@ JOINT=_
 echo $PARAM_FILE
 
 python run.py --file_name $FILE
+
 # python train_PRNN.py --file_name $BASE --model $PRNN
 echo "$BASE$JOINT$PRNN"
 python compressor.py -model $BASE$JOINT$PRNN -model_name $ARNN -batch_size 64 -data $BASE -data_params $PARAM_FILE -output $BASE

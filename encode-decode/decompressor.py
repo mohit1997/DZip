@@ -100,8 +100,7 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	y_original = data[:, -1:]
 	l = int(len(X)/bs)*bs
 
-        decayrate = 32*2.0/(len(X) // bs + 1)
-        optim = keras.optimizers.Adam(lr=5e-4, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False)
+	optim = tf.train.AdamOptimizer(learning_rate=5e-4)
         ARNN.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.1], optimizer=optim, metrics=['acc'])
 
 	f = open(args.file_prefix + ".dzip", 'rb')

@@ -122,8 +122,8 @@ def biGRU_jump(bs,time_steps,alphabet_size):
   if alphabet_size >= 1 and alphabet_size <=3:
       inputs_bits = Input(shape=(time_steps,))
       x = Embedding(alphabet_size, 8,)(inputs_bits)
-      x = Bidirectional(GRU(8, stateful=False, return_sequences=True, reset_after=True))(x)
-      x = Bidirectional(GRU(8, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
       x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
       flat = Flatten()(x)
       prelogits = x = Dense(16, activation='relu')(flat)
