@@ -3,6 +3,7 @@ import numpy as np
 import keras
 import os 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import *
@@ -36,8 +37,7 @@ def iterate_minibatches(inputs, targets, batchsize, n_classes, shuffle=False):
         
 def fit_model(X, Y, bs, ARNN):
     y = Y
-    decayrate = 32*2.0/(len(Y) // bs+1)
-    optim = keras.optimizers.Adam(lr=5e-4, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False)
+    optim = tf.train.AdamOptimizer(learning_rate=5e-4)
     ARNN.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.1], optimizer=optim, metrics=['acc'])
     
     i = 0
@@ -68,7 +68,7 @@ def get_argument_parser():
                         help='Name for the ARNN architecture')
     parser.add_argument('--PRNN', type=str, default='biGRU_jump',
                         help='Name for the PRNN architecture')
-    parser.add_argument('--gpu', type=str, default='0',
+    parser.add_argument('--gpu', type=str, default='1',
                         help='Name for the log file')
     return parser
 

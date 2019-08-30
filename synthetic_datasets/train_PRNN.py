@@ -58,8 +58,6 @@ def get_argument_parser():
     parser = argparse.ArgumentParser();
     parser.add_argument('--file_name', type=str, default='xor10',
                         help='The name of the input file')
-    parser.add_argument('--log_file', type=str, default='logs.txt',
-                        help='Name for the log file')
     parser.add_argument('--model', type=str, default='biGRU_jump',
                         help='Name for the log file')
     parser.add_argument('--gpu', type=str, default='0',
