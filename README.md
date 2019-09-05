@@ -24,7 +24,12 @@ Run the following command
 bash get_data.sh
 ```
 
+For the PhiQ quality score, a zipped file is provided directly.
+
 ### Running models
+#### There are two ways of running Dzip
+
+##### Geting bits per symbol required (uses GPU for encoding and faster)
 1. All the models are listed in models.py
 2. Pick a model, to run compression experiment on all the data files in the data/files_to_be_compressed directory
 
@@ -33,3 +38,4 @@ cd src
 ./run_experiments.sh biLSTM
 ```
 
+##### ENCODING-DECODING (uses cpu and slower)
