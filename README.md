@@ -24,7 +24,7 @@ Run the following command
 bash get_data.sh
 ```
 
-For the PhiQ quality score, a zipped file is provided directly.
+For the PhiX virus quality scores data, a zipped file is provided directly.
 
 ### Running models
 #### There are two ways of running DeepZip
