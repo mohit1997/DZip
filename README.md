@@ -20,7 +20,8 @@ To run a compression experiment:
 
 
 Run the following command
-```bash get_data.sh
+```bash 
+bash get_data.sh
 ```
 
 ### Running models
