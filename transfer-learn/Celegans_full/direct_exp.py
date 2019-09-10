@@ -182,7 +182,6 @@ def biGRU_big(bs,time_steps,alphabet_size):
   flat = Flatten()(x)  
   x = Dense(16, activation='relu')(flat)
   x = Add()([Dense(alphabet_size)(x),  Dense(alphabet_size)(flat)])
-  x = Dense(alphabet_size)(x) 
   s1 = Activation('softmax', name="1")(x)
   s2 = Activation('softmax', name="2")(x)
   s3 = Activation('softmax', name="3")(x)

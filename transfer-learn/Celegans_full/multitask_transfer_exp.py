@@ -140,9 +140,8 @@ def generate_single_output_data(series,batch_size,time_steps):
         
 def fit_model(X, Y, bs, nb_epoch, student, teacher):
     y = Y
-    decayrate = 16*2.0/(len(Y) // bs)
-    optim = keras.optimizers.Adam(lr=5e-4, beta_1=0.9, beta_2=0.999, epsilon=None, decay=decayrate, amsgrad=False)
-    student.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.1], optimizer=optim, metrics=['acc'])
+    optim = tf.train.AdamOptimizer(learning_rate=5e-4, beta1=0.0)
+    student.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.], optimizer=optim, metrics=['acc'])
     checkpoint = ModelCheckpoint("modeltransferexp", monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
     csv_logger = CSVLogger("log_transferexp.csv", append=True, separator=';')
     early_stopping = EarlyStopping(monitor='loss', mode='min', min_delta=0.005, patience=3, verbose=1)
@@ -175,7 +174,7 @@ def fit_model(X, Y, bs, nb_epoch, student, teacher):
     np.save('multitasktransfer_explosslist', np.array(loss_list))
 
 
-batch_size=64
+batch_size=128
 sequence_length=64
 num_epochs=10
 noise = 0.0
@@ -195,20 +194,23 @@ def biGRU_big(bs,time_steps,alphabet_size):
   flat = Flatten()(x)
   prelogits = x = Dense(16, activation='relu')(flat)
   x = Add()([Dense(alphabet_size)(x),  Dense(alphabet_size)(flat)])
-  x = Dense(alphabet_size, name='logits')(x)
   new_logits = Add()([Dense(alphabet_size)(prelogits),  Dense(alphabet_size)(flat)]) 
   s1 = Activation('softmax', name="1")(x)
   s2 = Activation('softmax', name="2")(x)
   s3 = Activation('softmax', name="3")(x)
 
   model_prev = Model(inputs_bits, s1)
-  emb = Embedding(alphabet_size, 16)(inputs_bits)
-  d = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(emb)
-  d = Bidirectional(CuDNNGRU(64, stateful=False, return_sequences=True))(d)
+  d = emb = Embedding(alphabet_size, 16)(inputs_bits)
   d = Flatten()(d)
   flat2 = d = Concatenate()([d, flat])
-  d = Dense(1024, activation='relu')(d)
-  next_layer = Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d), new_logits])
+
+  d = Dense(1024, activation='relu')(flat2)
+  d = res_block(d, 1024, 'relu')
+  d = res_block(d, 1024, 'relu')
+  e = Dense(1024, activation='relu')(flat2)
+  e = Dense(1024, activation='relu')(e)
+
+  next_layer = Concatenate()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d), Dense(alphabet_size)(e), new_logits])
   next_layer = Dense(alphabet_size)(next_layer)
   s1 = Activation('softmax', name="1")(next_layer)
   s2 = Activation('softmax', name="2")(Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d)]))
@@ -235,7 +237,7 @@ model_teacher.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
 model_teacher.load_weights('directexp')
 
 for l in model_teacher.layers:
-    l.trainable = True
+    l.trainable = False
 
 model_student.summary()
 
