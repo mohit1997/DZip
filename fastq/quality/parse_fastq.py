@@ -104,7 +104,7 @@ output_file = os.path.splitext(base_name)[0]
 parser = ParseFastQ(fname)
 data = ''
 for tup in parser:
-	data += tup[1] + 'E'
+	data += tup[3] + ' '
 
 print("Seq Length {}".format(len(data)))
 vals = list(set(data))
