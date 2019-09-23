@@ -37,7 +37,7 @@ def iterate_minibatches(inputs, targets, batchsize, n_classes, shuffle=False):
         
 def fit_model(X, Y, bs, ARNN):
     y = Y
-    optim = tf.train.AdamOptimizer(learning_rate=5e-4, beta1=0.0)
+    optim = tf.train.AdamOptimizer(learning_rate=1e-4, beta1=0.0)
     ARNN.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.], optimizer=optim, metrics=['acc'])
     
     i = 0
