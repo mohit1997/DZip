@@ -15,6 +15,10 @@ DNA_compression using neural networks
 ## Code
 To run a compression experiment: 
 
+
+## Links to the Datasets
+1. [webster](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia)
+
 ### Data Preparation
 1. All the datasets can be downloaded using the scripts provided in the folder [Datasets](./Datasets)
 
