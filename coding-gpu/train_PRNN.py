@@ -54,7 +54,7 @@ def get_argument_parser():
                         help='Name for the log file')
     parser.add_argument('--gpu', type=str, default='0',
                         help='Name for the log file')
-    parser.add_argument('--epochs', type=int, default='1',
+    parser.add_argument('--epochs', type=int, default='10',
                         help='Num of epochs')
     return parser
 
