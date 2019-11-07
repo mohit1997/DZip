@@ -21,14 +21,14 @@ To run a compression experiment:
 |------|------|
 |webster|http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia|
 |mozilla|http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia|
-|H. chr20|ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr20.fa.gz|
-|H. chr1|ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr1.fa.gz|
-|C.E. Gen|ftp://ftp.ensembl.org/pub/release-97/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz|
-|Ill Qual.|http://bix.ucsd.edu/projects/singlecell/nbt_data.html|
+|h. chr20|ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr20.fa.gz|
+|h. chr1|ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr1.fa.gz|
+|c.e. Gen|ftp://ftp.ensembl.org/pub/release-97/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz|
+|ill-quality|http://bix.ucsd.edu/projects/singlecell/nbt_data.html|
 |text8|http://www.mattmahoney.net/dc/textdata.html|
 |enwiki9|http://www.mattmahoney.net/dc/textdata.html|
-|NP Bases|https://github.com/nanopore-wgs-consortium/NA12878|
-|NP Qual.|https://github.com/nanopore-wgs-consortium/NA12878|
+|np-bases|https://github.com/nanopore-wgs-consortium/NA12878|
+|np-quality|https://github.com/nanopore-wgs-consortium/NA12878|
 
 ### Data Preparation
 1. All the datasets can be downloaded using the scripts provided in the folder [Datasets](./Datasets)
