@@ -101,7 +101,7 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	l = int(len(X)/bs)*bs
 
 	optim = tf.train.AdamOptimizer(learning_rate=5e-4)
-        ARNN.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.1], optimizer=optim, metrics=['acc'])
+        ARNN.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
 
 	f = open(args.file_prefix + ".dzip", 'rb')
 	bitin = arithmeticcoding_fast.BitInputStream(f)
@@ -115,7 +115,7 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	cumul = np.zeros((1, alphabet_size+1), dtype = np.int64)
 	index = timesteps
 	for bx, by in iterate_minibatches(X[:l], y_original[:l], 1):
-		prob, _ = ARNN.predict(bx, batch_size=1)
+		prob = ARNN.predict(bx, batch_size=1)
 		cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
 		series[index] = dec.read(cumul[0, :], alphabet_size)
 		symbols_read = index-timesteps + 1
@@ -123,7 +123,7 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 			# print(symbols_read-bs, symbols_read)
 			train_x = X[symbols_read-bs:symbols_read]
 			train_y = keras.utils.to_categorical(y_original[symbols_read-bs:symbols_read], num_classes=alphabet_size)
-			ARNN.train_on_batch(train_x, [train_y, train_y])
+			ARNN.train_on_batch(train_x, train_y)
 		index = index+1
 		sys.stdout.flush()
                 print("{}/{}".format(index, length), end="\r")
@@ -132,7 +132,7 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	
 	if len(X[l:]) > 0:
 		for bx, by in iterate_minibatches(X[l:], y_original[l:], 1):
-			prob, _ = ARNN.predict(bx, batch_size=1)
+			prob = ARNN.predict(bx, batch_size=1)
 			cumul = np.zeros((1, alphabet_size+1), dtype = np.uint64)
 			cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
 			series[index] = dec.read(cumul[0, :], alphabet_size)
