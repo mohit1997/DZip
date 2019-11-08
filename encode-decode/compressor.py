@@ -95,7 +95,7 @@ def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
 	PRNN.load_weights(args.model_weights_file)
 
 	optim = tf.train.AdamOptimizer(learning_rate=5e-4)
-	ARNN.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.1], optimizer=optim, metrics=['acc'])
+	ARNN.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
 	l = int(len(X)/bs)*bs
 
 	f = open(args.file_prefix, 'wb')
@@ -110,19 +110,19 @@ def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
 	progress = 0
 	for bx, by in iterate_minibatches(X[:l], y_original[:l], bs):
 		for j in range(bs):
-			prob, _ = ARNN.predict(bx[j:j+1], batch_size=1)
+			prob = ARNN.predict(bx[j:j+1], batch_size=1)
 			cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
 			enc.write(cumul[0, :], int(by[j]))
 			progress = progress + 1
 			sys.stdout.flush()
                         print("{}/{}".format(progress, len(X)+timesteps), end="\r")	
 		onehot = keras.utils.to_categorical(by, num_classes=alphabet_size)
-		ARNN.train_on_batch(bx, [onehot, onehot])
+		ARNN.train_on_batch(bx, onehot)
 	if len(X[l:]) > 0:
 		# prob, _ = ARNN.predict(X[l:], batch_size=len(X[l:]))
 		cumul = np.zeros((1, alphabet_size+1), dtype = np.uint64)
 		for i in range(len(y_original[l:])):
-			prob, _ = ARNN.predict(X[l:][i:i+1], batch_size=1)
+			prob = ARNN.predict(X[l:][i:i+1], batch_size=1)
 			cumul[:,1:] = np.cumsum(prob*10000000 + 1, axis = 1)
 			enc.write(cumul[0, :], int(y_original[l:][i]))
 

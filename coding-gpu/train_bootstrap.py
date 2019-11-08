@@ -29,7 +29,7 @@ def fit_model(X, Y, bs, nb_epoch, preprocessor, num_classes):
     mul = len(Y)/5e7
     decayrate = mul/(len(Y) // bs)
     # lr = 1e-3 for synthetic dataset and lr = 5e-3 for real datasets
-    optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=None, amsgrad=False, clipnorm=0.1)
+    optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, clipnorm=0.1)
     preprocessor.compile(loss={'1': loss_fn}, optimizer=optim, metrics=['acc'])
     checkpoint = ModelCheckpoint(FLAGS.file_name + "_" + FLAGS.model, monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
     csv_logger = CSVLogger("log_{}_{}_PRNN".format(FLAGS.file_name, FLAGS.model), append=True, separator=',')

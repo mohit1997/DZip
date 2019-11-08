@@ -37,16 +37,16 @@ def iterate_minibatches(inputs, targets, batchsize, n_classes, shuffle=False):
         
 def fit_model(X, Y, bs, ARNN):
     y = Y
-    optim = tf.train.AdamOptimizer(learning_rate=5e-4, beta1=0.0)
-    ARNN.compile(loss={'1': loss_fn, '2': loss_fn}, loss_weights=[1.0, 0.], optimizer=optim, metrics=['acc'])
+    optim = tf.train.AdamOptimizer(learning_rate=5e-4, beta1=0.)
+    ARNN.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
     
     i = 0
     loss_list = []
     for batch_x, batch_y in iterate_minibatches(X, y, bs, n_classes, shuffle=False):
 	i = i+1
-	out = ARNN.test_on_batch(batch_x, [batch_y, batch_y])
-        loss_list.append(out[1])
-	out = ARNN.train_on_batch(batch_x, [batch_y, batch_y])
+	out = ARNN.test_on_batch(batch_x, batch_y)
+        loss_list.append(out[0])
+	out = ARNN.train_on_batch(batch_x, batch_y)
         # out2 = ARNN.train_on_batch(batch_x, [batch_y, batch_y])
         # out = ARNN.train_on_batch(batch_x, [batch_y, batch_y])
 	if i%10==0:
@@ -90,10 +90,11 @@ X, Y = generate_single_output_data(sequence, batch_size, sequence_length)
 
 ARNN, PRNN = eval(FLAGS.ARNN)(batch_size, sequence_length, n_classes)
 
-optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, decay=0.0, amsgrad=False)
 PRNN.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
 if semiadaptive:
-	PRNN.load_weights("{}_{}".format(FLAGS.file_name, FLAGS.PRNN))
+	print("Loading Weights")
+        PRNN.load_weights("{}_{}".format(FLAGS.file_name, FLAGS.PRNN))
 
 	for l in PRNN.layers:
 	    l.trainable = False

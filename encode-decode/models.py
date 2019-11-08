@@ -77,10 +77,10 @@ def biGRU_big(bs,time_steps,alphabet_size):
       next_layer = Concatenate()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d), Dense(alphabet_size)(e), new_logits])
       next_layer = Dense(alphabet_size)(next_layer)
       s1 = Activation('softmax', name="1")(next_layer)
-      s2 = Activation('softmax', name="2")(Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d)]))
+      # s2 = Activation('softmax', name="2")(Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d)]))
       # s3 = Activation('softmax', name="3")(logits)
 
-      model = Model(inputs_bits, [s1, s2])
+      model = Model(inputs_bits, s1)
 
       return model, model_prev
 
@@ -113,10 +113,10 @@ def biGRU_big(bs,time_steps,alphabet_size):
       next_layer = Concatenate()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d), Dense(alphabet_size)(e), new_logits])
       next_layer = Dense(alphabet_size)(next_layer)
       s1 = Activation('softmax', name="1")(next_layer)
-      s2 = Activation('softmax', name="2")(Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d)]))
+      # s2 = Activation('softmax', name="2")(Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d)]))
       # s3 = Activation('softmax', name="3")(logits)
 
-      model = Model(inputs_bits, [s1, s2])
+      model = Model(inputs_bits, s1)
 
       return model, model_prev
 
@@ -150,9 +150,9 @@ def biGRU_big(bs,time_steps,alphabet_size):
       
       next_layer = Dense(alphabet_size)(next_layer)
       s1 = Activation('softmax', name="1")(next_layer)
-      s2 = Activation('softmax', name="2")(Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d)]))
+      # s2 = Activation('softmax', name="2")(Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d)]))
 
-      model = Model(inputs_bits, [s1, s2])
+      model = Model(inputs_bits, s1)
 
       return model, model_prev
 
@@ -186,9 +186,9 @@ def biGRU_big(bs,time_steps,alphabet_size):
 
       next_layer = Dense(alphabet_size)(next_layer)
       s1 = Activation('softmax', name="1")(next_layer)
-      s2 = Activation('softmax', name="2")(Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d)]))
+      # s2 = Activation('softmax', name="2")(Add()([Dense(alphabet_size)(flat2), Dense(alphabet_size)(d)]))
 
-      model = Model(inputs_bits, [s1, s2])
+      model = Model(inputs_bits, s1)
 
       return model, model_prev
 
