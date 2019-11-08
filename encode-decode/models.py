@@ -51,8 +51,8 @@ def biGRU_big(bs,time_steps,alphabet_size):
   if alphabet_size >= 1 and alphabet_size <=3:
       inputs_bits = Input(shape=(time_steps,))
       x = Embedding(alphabet_size, 8,)(inputs_bits)
-      x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
-      x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(GRU(8, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Bidirectional(GRU(8, stateful=False, return_sequences=True, reset_after=True))(x)
       x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
       flat = Flatten()(x)
       prelogits = x = Dense(16, activation='relu')(flat)
@@ -62,8 +62,8 @@ def biGRU_big(bs,time_steps,alphabet_size):
 
       model_prev = Model(inputs_bits, s1)
       d = emb = Embedding(alphabet_size, 16)(inputs_bits)
-      # d = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(emb)
-      # d = Bidirectional(CuDNNGRU(64, stateful=False, return_sequences=True))(d)
+      # d = Bidirectional(GRU(128, stateful=False, return_sequences=True))(emb)
+      # d = Bidirectional(GRU(64, stateful=False, return_sequences=True))(d)
       d = Flatten()(d)
       flat2 = d = Concatenate()([d, flat])
       d = Dense(1024, activation='relu')(flat2)
@@ -87,8 +87,8 @@ def biGRU_big(bs,time_steps,alphabet_size):
   if alphabet_size >= 4 and alphabet_size <=8:
       inputs_bits = Input(shape=(time_steps,))
       x = emb = Embedding(alphabet_size, 8,)(inputs_bits)
-      x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
-      full_stack = x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(GRU(32, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Bidirectional(GRU(32, stateful=False, return_sequences=True, reset_after=True))(x)
       x = Lambda(lambda tensor: tensor[:,jump-1::jump,:], output_shape=my_shape)(x)
       flat = Flatten()(x)
       prelogits = x = Dense(16, activation='relu')(flat)
@@ -98,8 +98,8 @@ def biGRU_big(bs,time_steps,alphabet_size):
 
       model_prev = Model(inputs_bits, s1)
       d = emb = Embedding(alphabet_size, 16)(inputs_bits)
-      # d = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(emb)
-      # d = Bidirectional(CuDNNGRU(64, stateful=False, return_sequences=True))(d)
+      # d = Bidirectional(GRU(128, stateful=False, return_sequences=True))(emb)
+      # d = Bidirectional(GRU(64, stateful=False, return_sequences=True))(d)
       d = Flatten()(d)
       flat2 = d = Concatenate()([d, flat])
       d = Dense(1024, activation='relu')(flat2)
@@ -123,8 +123,8 @@ def biGRU_big(bs,time_steps,alphabet_size):
   if alphabet_size >= 10 and alphabet_size < 128:
       inputs_bits = Input(shape=(time_steps,))
       x = Embedding(alphabet_size, 16,)(inputs_bits)
-      x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
-      x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(GRU(128, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Bidirectional(GRU(128, stateful=False, return_sequences=True, reset_after=True))(x)
       x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
       flat = Flatten()(x)
       prelogits = x = Dense(128, activation='relu')(flat)
@@ -134,8 +134,8 @@ def biGRU_big(bs,time_steps,alphabet_size):
 
       model_prev = Model(inputs_bits, s1)
       d = emb = Embedding(alphabet_size, 32)(inputs_bits)
-      # d = Bidirectional(CuDNNGRU(256, stateful=False, return_sequences=True))(emb)
-      # d = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(d)
+      # d = Bidirectional(GRU(256, stateful=False, return_sequences=True))(emb)
+      # d = Bidirectional(GRU(128, stateful=False, return_sequences=True))(d)
       d = Flatten()(d)
       flat2 = d = Concatenate()([d, flat])
       
@@ -159,8 +159,8 @@ def biGRU_big(bs,time_steps,alphabet_size):
   if alphabet_size >= 128:
       inputs_bits = Input(shape=(time_steps,))
       x = Embedding(alphabet_size, 16,)(inputs_bits)
-      x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
-      x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(GRU(128, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Bidirectional(GRU(128, stateful=False, return_sequences=True, reset_after=True))(x)
       x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
       flat = Flatten()(x)
       prelogits = x = Dense(256, activation='relu')(flat)
@@ -170,8 +170,8 @@ def biGRU_big(bs,time_steps,alphabet_size):
 
       model_prev = Model(inputs_bits, s1)
       d = emb = Embedding(alphabet_size, 32)(inputs_bits)
-      # d = Bidirectional(CuDNNGRU(256, stateful=False, return_sequences=True))(emb)
-      # d = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(d)
+      # d = Bidirectional(GRU(256, stateful=False, return_sequences=True))(emb)
+      # d = Bidirectional(GRU(128, stateful=False, return_sequences=True))(d)
       d = Flatten()(d)
       flat2 = d = Concatenate()([d, flat])
 
@@ -202,8 +202,8 @@ def biGRU_jump(bs,time_steps,alphabet_size):
   if alphabet_size >= 1 and alphabet_size <=3:
       inputs_bits = Input(shape=(time_steps,))
       x = Embedding(alphabet_size, 8,)(inputs_bits)
-      x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
-      x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(GRU(8, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Bidirectional(GRU(8, stateful=False, return_sequences=True, reset_after=True))(x)
       x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
       flat = Flatten()(x)
       prelogits = x = Dense(16, activation='relu')(flat)
@@ -215,8 +215,8 @@ def biGRU_jump(bs,time_steps,alphabet_size):
   if alphabet_size >= 4 and alphabet_size <=8:
       inputs_bits = Input(shape=(time_steps,))
       x = Embedding(alphabet_size, 8,)(inputs_bits)
-      x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
-      x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(GRU(32, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Bidirectional(GRU(32, stateful=False, return_sequences=True, reset_after=True))(x)
       x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
       flat = Flatten()(x)
       prelogits = x = Dense(16, activation='relu')(flat)
@@ -228,8 +228,8 @@ def biGRU_jump(bs,time_steps,alphabet_size):
   if alphabet_size >= 10 and alphabet_size < 128:
       inputs_bits = Input(shape=(time_steps,))
       x = Embedding(alphabet_size, 16,)(inputs_bits)
-      x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
-      x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(GRU(128, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Bidirectional(GRU(128, stateful=False, return_sequences=True, reset_after=True))(x)
       x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
       flat = Flatten()(x)
       prelogits = x = Dense(128, activation='relu')(flat)
@@ -241,8 +241,8 @@ def biGRU_jump(bs,time_steps,alphabet_size):
   if alphabet_size >= 128:
       inputs_bits = Input(shape=(time_steps,))
       x = Embedding(alphabet_size, 16,)(inputs_bits)
-      x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
-      x = Bidirectional(CuDNNGRU(128, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(GRU(128, stateful=False, return_sequences=True, reset_after=True))(x)
+      x = Bidirectional(GRU(128, stateful=False, return_sequences=True, reset_after=True))(x)
       x = Lambda(lambda tensor: tensor[:,::-jump,:][:,::-1,:], output_shape=my_shape)(x)
       flat = Flatten()(x)
       prelogits = x = Dense(256, activation='relu')(flat)
@@ -262,24 +262,6 @@ def biGRU(bs,time_steps,alphabet_size):
   # x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
   x = Dense(8, activation='relu')(x)
   x = Dense(alphabet_size)(x)
-
-  s1 = Activation('softmax', name="1")(x)
-
-  model = Model(inputs_bits, s1)
-
-  return model
-
-def biGRU_stack(bs,time_steps,alphabet_size):
-  inputs_bits = Input(shape=(time_steps,))
-  x   = Embedding(alphabet_size, 8,)(inputs_bits)
-  x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
-  # x = TimeDistributed(Dense(8, activation='relu'))(x)
-  x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
-  # x = TimeDistributed(Dense(8, activation='relu'))(x)
-  # x = Bidirectional(CuDNNGRU(8, stateful=False, return_sequences=True))(x)
-  flat = Flatten()(x)
-  x = Dense(16, activation='relu')(flat)
-  x = Add()([Dense(alphabet_size)(x),  Dense(alphabet_size)(flat)])
 
   s1 = Activation('softmax', name="1")(x)
 
