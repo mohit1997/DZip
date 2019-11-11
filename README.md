@@ -12,7 +12,7 @@ Data Compression using neural networks
 4. keras 2.2.2
 5. tensorflow (gpu) 1.8
 
-## Code
+## USAGE
 To run a compression experiment: 
 
 
