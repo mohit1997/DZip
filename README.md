@@ -1,7 +1,7 @@
-# DeepZip
+# DZip: improved general-purpose lossless compression based on novel neural network modeling
 
 ## Description
-DNA_compression using neural networks
+Data Compression using neural networks
 
 
 ## Requirements
@@ -30,13 +30,13 @@ To run a compression experiment:
 |np-bases|https://github.com/nanopore-wgs-consortium/NA12878|
 |np-quality|https://github.com/nanopore-wgs-consortium/NA12878|
 
-### Data Preparation
-1. All the datasets can be downloaded using the scripts provided in the folder [Datasets](./Datasets)
+<>### Data Preparation
+<>1. All the datasets can be downloaded using the scripts provided in the folder [Datasets](./Datasets)
 
 
-Run the following command
-```bash 
-bash get_data.sh
+<>Run the following command
+<>```bash 
+<>bash get_data.sh
 ```
 
 For the PhiX virus quality scores data, a zipped file is provided directly.
