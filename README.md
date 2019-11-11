@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # DZip: improved general-purpose lossless compression based on novel neural network modeling
+=======
+# DZip
+>>>>>>> d618fec41c8576afc1298f957f85bb91deecde0d
 
 ## Description
 Data Compression using neural networks
@@ -23,7 +27,7 @@ To run a compression experiment:
 |mozilla|http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia|
 |h. chr20|ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr20.fa.gz|
 |h. chr1|ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr1.fa.gz|
-|c.e. Gen|ftp://ftp.ensembl.org/pub/release-97/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz|
+|c.e. genome|ftp://ftp.ensembl.org/pub/release-97/fasta/caenorhabditis_elegans/dna/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa.gz|
 |ill-quality|http://bix.ucsd.edu/projects/singlecell/nbt_data.html|
 |text8|http://www.mattmahoney.net/dc/textdata.html|
 |enwiki9|http://www.mattmahoney.net/dc/textdata.html|
