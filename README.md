@@ -1,5 +1,6 @@
-# DZip: improved general-purpose lossless compression based on novel neural network modeling
-### Arxiv: https://arxiv.org/abs/1911.03572
+# DZip
+## improved general-purpose lossless compression based on novel neural network modeling
+#### Arxiv: https://arxiv.org/abs/1911.03572
 ## Description
 Data Compression using neural networks
 
