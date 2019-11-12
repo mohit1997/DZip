@@ -1,5 +1,5 @@
 # DZip: improved general-purpose lossless compression based on novel neural network modeling
-
+### Arxiv: https://arxiv.org/abs/1911.00208
 ## Description
 Data Compression using neural networks
 
@@ -12,7 +12,7 @@ Data Compression using neural networks
 4. keras 2.2.2
 5. tensorflow (gpu) 1.8
 
-## USAGE
+# USAGE
 To run a compression experiment: 
 
 
