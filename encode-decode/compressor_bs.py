@@ -54,19 +54,19 @@ tf.set_random_seed(0)
 
 parser = argparse.ArgumentParser(description='Input')
 parser.add_argument('-model', action='store', dest='model_weights_file',
-                    help='model file')
+					help='model file')
 parser.add_argument('-model_name', action='store', dest='model_name',
-                    help='model file')
+					help='model file')
 parser.add_argument('-batch_size', action='store', dest='batch_size', type=int,
-                    help='model file')
+					help='model file')
 parser.add_argument('-data', action='store', dest='sequence_npy_file',
-                    help='data file')
+					help='data file')
 parser.add_argument('-data_params', action='store', dest='params_file',
-                    help='params file')
+					help='params file')
 parser.add_argument('-output', action='store',dest='output_file_prefix',
-                    help='compressed file name')
+					help='compressed file name')
 parser.add_argument('-gpu', action='store', dest='gpu_id', default="",
-                    help='params file')
+					help='params file')
 
 args = parser.parse_args()
 
@@ -78,19 +78,19 @@ sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
 K.set_session(sess)
 
 def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
-    assert inputs.shape[0] == targets.shape[0]
-    if shuffle:
-        indices = np.arange(inputs.shape[0])
-        np.random.shuffle(indices)
-    for start_idx in range(0, inputs.shape[0] - batchsize + 1, batchsize):
-        # if(start_idx + batchsize >= inputs.shape[0]):
-        #   break;
+	assert inputs.shape[0] == targets.shape[0]
+	if shuffle:
+		indices = np.arange(inputs.shape[0])
+		np.random.shuffle(indices)
+	for start_idx in range(0, inputs.shape[0] - batchsize + 1, batchsize):
+		# if(start_idx + batchsize >= inputs.shape[0]):
+		#   break;
 
-        if shuffle:
-            excerpt = indices[start_idx:start_idx + batchsize]
-        else:
-            excerpt = slice(start_idx, start_idx + batchsize)
-        yield inputs[excerpt], targets[excerpt]
+		if shuffle:
+			excerpt = indices[start_idx:start_idx + batchsize]
+		else:
+			excerpt = slice(start_idx, start_idx + batchsize)
+		yield inputs[excerpt], targets[excerpt]
 
 def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
 	ARNN, PRNN = eval(model_name)(bs, timesteps, alphabet_size)
@@ -115,7 +115,7 @@ def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
 			enc.write(cumul[0, :], int(by[j]))
 			progress = progress + 1
 			sys.stdout.flush()
-                        print("{}/{}".format(progress, len(X)+timesteps), end="\r")	
+			print("{}/{}".format(progress, len(X)+timesteps), end="\r")	
 	if len(X[l:]) > 0:
 		# prob, _ = ARNN.predict(X[l:], batch_size=len(X[l:]))
 		cumul = np.zeros((1, alphabet_size+1), dtype = np.uint64)
@@ -129,30 +129,30 @@ def predict_lstm(X, y_original, timesteps, bs, alphabet_size, model_name):
 	f.close()
 
 def main():
-    args.file_prefix = args.output_file_prefix + ".dzip"
-    sequence = np.load(args.sequence_npy_file + ".npy")
-    n_classes = len(np.unique(sequence))
-    batch_size = args.batch_size
-    timesteps = 64
-        
-    with open(args.params_file, 'r') as f:
-        params = json.load(f)
+	args.file_prefix = args.output_file_prefix + ".dzip"
+	sequence = np.load(args.sequence_npy_file + ".npy")
+	n_classes = len(np.unique(sequence))
+	batch_size = args.batch_size
+	timesteps = 64
+		
+	with open(args.params_file, 'r') as f:
+		params = json.load(f)
 
-    params['len_series'] = len(sequence)
-    params['bs'] = batch_size
-    params['timesteps'] = timesteps
+	params['len_series'] = len(sequence)
+	params['bs'] = batch_size
+	params['timesteps'] = timesteps
 
-    with open(args.output_file_prefix+'.params','w') as f:
-        json.dump(params, f, indent=4)
+	with open(args.output_file_prefix+'.params','w') as f:
+		json.dump(params, f, indent=4)
 
-    sequence = sequence.reshape(-1)
-    series = sequence.copy()
-    data = strided_app(series, timesteps+1, 1)
-    X = data[:, :-1]
-    Y_original = data[:, -1:]
-    predict_lstm(X, Y_original, timesteps, batch_size, n_classes, args.model_name) 
+	sequence = sequence.reshape(-1)
+	series = sequence.copy()
+	data = strided_app(series, timesteps+1, 1)
+	X = data[:, :-1]
+	Y_original = data[:, -1:]
+	predict_lstm(X, Y_original, timesteps, batch_size, n_classes, args.model_name) 
 
 
 if __name__ == "__main__":
-        main()
+		main()
 

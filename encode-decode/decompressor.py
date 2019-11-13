@@ -54,17 +54,17 @@ tf.set_random_seed(0)
 
 parser = argparse.ArgumentParser(description='Input')
 parser.add_argument('-model', action='store', dest='model_weights_file',
-                    help='model file')
+					help='model file')
 parser.add_argument('-model_name', action='store', dest='model_name',
-                    help='model file')
+					help='model file')
 parser.add_argument('-batch_size', action='store', dest='batch_size', type=int,
-                    help='model file')
+					help='model file')
 parser.add_argument('-input', action='store', dest='file_prefix',
-                    help='compressed file')
+					help='compressed file')
 parser.add_argument('-output', action='store',dest='output_file',
-                    help='decompressed_file')
+					help='decompressed_file')
 parser.add_argument('-gpu', action='store', dest='gpu_id', default="",
-                    help='params file')
+					help='params file')
 
 args = parser.parse_args()
 
@@ -76,32 +76,32 @@ sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
 K.set_session(sess)
 
 def iterate_minibatches(inputs, targets, batchsize, shuffle=False):
-    assert inputs.shape[0] == targets.shape[0]
-    if shuffle:
-        indices = np.arange(inputs.shape[0])
-        np.random.shuffle(indices)
-    for start_idx in range(0, inputs.shape[0] - batchsize + 1, batchsize):
-        # if(start_idx + batchsize >= inputs.shape[0]):
-        #   break;
+	assert inputs.shape[0] == targets.shape[0]
+	if shuffle:
+		indices = np.arange(inputs.shape[0])
+		np.random.shuffle(indices)
+	for start_idx in range(0, inputs.shape[0] - batchsize + 1, batchsize):
+		# if(start_idx + batchsize >= inputs.shape[0]):
+		#   break;
 
-        if shuffle:
-            excerpt = indices[start_idx:start_idx + batchsize]
-        else:
-            excerpt = slice(start_idx, start_idx + batchsize)
-        yield inputs[excerpt], targets[excerpt]
+		if shuffle:
+			excerpt = indices[start_idx:start_idx + batchsize]
+		else:
+			excerpt = slice(start_idx, start_idx + batchsize)
+		yield inputs[excerpt], targets[excerpt]
 
 def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	ARNN, PRNN = eval(model_name)(bs, timesteps, alphabet_size)
-        PRNN.load_weights(args.model_weights_file)
-	
-        series = np.zeros((length), dtype=np.int64)
-        data = strided_app(series, timesteps+1, 1)
+	PRNN.load_weights(args.model_weights_file)
+
+	series = np.zeros((length), dtype=np.int64)
+	data = strided_app(series, timesteps+1, 1)
 	X = data[:, :-1]
 	y_original = data[:, -1:]
 	l = int(len(X)/bs)*bs
 
 	optim = tf.train.AdamOptimizer(learning_rate=5e-4)
-        ARNN.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
+	ARNN.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
 
 	f = open(args.file_prefix + ".dzip", 'rb')
 	bitin = arithmeticcoding_fast.BitInputStream(f)
@@ -126,7 +126,7 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 			ARNN.train_on_batch(train_x, train_y)
 		index = index+1
 		sys.stdout.flush()
-                print("{}/{}".format(index, length), end="\r")
+		print("{}/{}".format(index, length), end="\r")
 
 	
 	
@@ -145,26 +145,26 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	return series
 
 def main():
-    with open(args.file_prefix +".params", 'r') as f:
-        param_dict = json.load(f)
-    
-    len_series = param_dict['len_series']
-    batch_size = param_dict['bs']
-    timesteps = param_dict['timesteps']
-    id2char_dict = param_dict['id2char_dict'] 
-    n_classes = len(id2char_dict)
-    print(n_classes, len_series)
-    
-    series = np.zeros(len_series,dtype=np.uint8)
-    series = predict_lstm(len_series, timesteps, batch_size, n_classes, args.model_name)
+	with open(args.file_prefix +".params", 'r') as f:
+		param_dict = json.load(f)
+	
+	len_series = param_dict['len_series']
+	batch_size = param_dict['bs']
+	timesteps = param_dict['timesteps']
+	id2char_dict = param_dict['id2char_dict'] 
+	n_classes = len(id2char_dict)
+	print(n_classes, len_series)
+	
+	series = np.zeros(len_series,dtype=np.uint8)
+	series = predict_lstm(len_series, timesteps, batch_size, n_classes, args.model_name)
 
-    f = open(args.output_file,'w')
-    print(id2char_dict)
-    print(series[:10])
-    f.write(''.join([id2char_dict[str(s)] for s in series]))
-    f.close()
+	f = open(args.output_file,'w')
+	print(id2char_dict)
+	print(series[:10])
+	f.write(''.join([id2char_dict[str(s)] for s in series]))
+	f.close()
 
 
 if __name__ == "__main__":
-        main()
+		main()
 
