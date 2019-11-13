@@ -88,7 +88,7 @@ def biGRU_big(bs,time_steps,alphabet_size):
       inputs_bits = Input(shape=(time_steps,))
       x = emb = Embedding(alphabet_size, 8,)(inputs_bits)
       x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
-      full_stack = x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
+      x = Bidirectional(CuDNNGRU(32, stateful=False, return_sequences=True))(x)
       x = Lambda(lambda tensor: tensor[:,jump-1::jump,:], output_shape=my_shape)(x)
       flat = Flatten()(x)
       prelogits = x = Dense(16, activation='relu')(flat)
