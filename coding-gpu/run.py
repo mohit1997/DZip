@@ -32,7 +32,7 @@ id2char_dict = {i: c for (i,c) in enumerate(vals)}
 
 params = {'char2id_dict':char2id_dict, 'id2char_dict':id2char_dict}
 with open(param_file, 'w') as f:
-    json.dump(params, f, indent=4)
+    json.dump(params, f, indent=4, encoding='latin-1')
 
 print(char2id_dict)
 print(id2char_dict)
