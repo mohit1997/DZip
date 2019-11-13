@@ -43,18 +43,18 @@ def fit_model(X, Y, bs, ARNN):
     i = 0
     loss_list = []
     for batch_x, batch_y in iterate_minibatches(X, y, bs, n_classes, shuffle=False):
-	i = i+1
-	out = ARNN.test_on_batch(batch_x, batch_y)
+        i = i+1
+        out = ARNN.test_on_batch(batch_x, batch_y)
         loss_list.append(out[0])
-	out = ARNN.train_on_batch(batch_x, batch_y)
+        out = ARNN.train_on_batch(batch_x, batch_y)
         # out2 = ARNN.train_on_batch(batch_x, [batch_y, batch_y])
         # out = ARNN.train_on_batch(batch_x, [batch_y, batch_y])
-	if i%10==0:
-	    sys.stdout.flush()
-	    print('Batch {}/{} Loss = {:4f}'.format(i, len(y)//bs, np.mean(loss_list)), end='\r')
-        if i%100000==0:
-            np.save('ARNN_{}_losslist_{}'.format(FLAGS.file_name, FLAGS.mode), np.array(loss_list))
-	
+        if i%10==0:
+            sys.stdout.flush()
+            print('Batch {}/{} Loss = {:4f}'.format(i, len(y)//bs, np.mean(loss_list)), end='\r')
+            if i%100000==0:
+                np.save('ARNN_{}_losslist_{}'.format(FLAGS.file_name, FLAGS.mode), np.array(loss_list))
+    
     print('Training Complete Batch {}/{} Loss = {:4f}'.format(i, len(y)//bs, np.mean(loss_list)))
     np.save('ARNN_{}_losslist_{}'.format(FLAGS.file_name, FLAGS.mode), np.array(loss_list))
 
@@ -93,11 +93,11 @@ ARNN, PRNN = eval(FLAGS.ARNN)(batch_size, sequence_length, n_classes)
 optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, decay=0.0, amsgrad=False)
 PRNN.compile(loss=loss_fn, optimizer=optim, metrics=['acc'])
 if semiadaptive:
-	print("Loading Weights")
-        PRNN.load_weights("{}_{}".format(FLAGS.file_name, FLAGS.PRNN))
+    print("Loading Weights")
+    PRNN.load_weights("{}_{}".format(FLAGS.file_name, FLAGS.PRNN))
 
-	for l in PRNN.layers:
-	    l.trainable = False
+    for l in PRNN.layers:
+        l.trainable = False
 
 ARNN.summary()
 
