@@ -77,6 +77,8 @@ The arithmetic coding is performed using the code available at [Reference-arithm
 
 To compress a synthetic sequence XOR-10. 
 
+#### NOTE: We have already provided some sample syntheic sequences (XOR-k and HMM-k) for test runs in [encode-decode/files_to_be_compressed](./encode-decode/files_to_be_compressed).
+
 #### Generating the dataset
 
 Go to [synthetic_datasets](./Datasets/synthetic_datasets)
@@ -89,7 +91,6 @@ Copy the generated files `xor10.txt` to [encode-decode/files_to_be_compressed](.
 cp files_to_be_compressed/xor10.txt ../encode-decode/files_to_be_compressed/
 ```
 
-#### NOTE: We have already provided some sample syntheic sequences (XOR-k and HMM-k) for test runs.
 
 Compress using DZip
 ```bash 
