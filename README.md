@@ -17,7 +17,7 @@ Data Compression using neural networks
 ### Download and install dependencies
 Download:
 ```
-giti clone https://github.com/mohit1997/DZip.git
+git clone https://github.com/mohit1997/DZip.git
 ```
 To set up virtual environment and dependencies (on Linux):
 ```
