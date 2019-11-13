@@ -1,4 +1,4 @@
-FILE=files_to_be_compressed/xor40.txt
+FILE=$1
 BASE=${FILE##*/}
 BASE=${BASE%.*}
 

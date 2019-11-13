@@ -11,7 +11,7 @@ echo $PARAM_FILE
 
 python run.py --file_name $FILE
 
-python train_bootstrap.py --file_name $BASE --model $PRNN
+python train_bootstrap.py --file_name $BASE --model $PRNN --epochs 1
 echo "$BASE$JOINT$PRNN"
 if [ "$mode" = com ] ; then
 	python compressor.py -model $BASE$JOINT$PRNN -model_name $ARNN -batch_size 128 -data $BASE -data_params $PARAM_FILE -output $BASE
