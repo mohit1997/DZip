@@ -103,7 +103,7 @@ Decompress using DZip
 
 ```bash 
 # Decompress using Bootstrap Model
-bash decompress.sh files_to_be_compressed/xor10.txt bs
+bash decompress.sh xor10.dzip bs
 # Decompress using Combined Model
-bash decompress.sh files_to_be_compressed/xor10.txt com
+bash decompress.sh xor10.dzip com
 ```
