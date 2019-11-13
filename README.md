@@ -6,8 +6,8 @@ Data Compression using neural networks
 
 
 ## Requirements
-
-1.  2
+0. GPU
+1. python2
 2. numpy
 3. sklearn
 4. keras 2.2.2
@@ -92,14 +92,14 @@ cp files_to_be_compressed/xor10.txt ../encode-decode/files_to_be_compressed/
 ```
 
 
-Compress using DZip
+#### Compress using DZip
 ```bash 
 # Compress using Bootstrap Model
 bash compress.sh files_to_be_compressed/xor10.txt bs
 # Compress using Combined Model
 bash compress.sh files_to_be_compressed/xor10.txt com
 ```
-Decompress using DZip
+#### Decompress using DZip
 
 ```bash 
 # Decompress using Bootstrap Model
