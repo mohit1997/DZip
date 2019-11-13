@@ -72,3 +72,31 @@ bash get_compression_results.sh files_to_be_compressed/FILENAME
 
 ### Credits
 The arithmetic coding is performed using the code available at [Reference-arithmetic-coding](https://github.com/nayuki/Reference-arithmetic-coding). The code is a part of Project Nayuki.
+
+### Examples
+
+To compress a synthetic sequence XOR-10. Go to [synthetic_datasets](./Datasets/synthetic_datasets)
+```python
+python generate_data.py --data_type 0entropy --markovity 10 --file_name files_to_be_compressed/xor10.txt
+```
+
+Copy the generated files `xor10.txt` to [files_to_be_compressed](./encode-decode/files_to_be_compressed)
+```bash
+cp files_to_be_compressed/xor10.txt ../encode-decode/files_to_be_compressed/
+```
+
+Compress using DZip
+```bash 
+# Compress using Bootstrap Model
+bash compress.sh files_to_be_compressed/xor10.txt bs
+# Compress using Combined Model
+bash compress.sh files_to_be_compressed/xor10.txt com
+```
+Decompress using DZip
+
+```bash 
+# Compress using Bootstrap Model
+bash decompress.sh files_to_be_compressed/xor10.txt bs
+# Compress using Combined Model
+bash decompress.sh files_to_be_compressed/xor10.txt com
+```
