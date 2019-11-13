@@ -102,8 +102,8 @@ bash compress.sh files_to_be_compressed/xor10.txt com
 Decompress using DZip
 
 ```bash 
-# Compress using Bootstrap Model
+# Decompress using Bootstrap Model
 bash decompress.sh files_to_be_compressed/xor10.txt bs
-# Compress using Combined Model
+# Decompress using Combined Model
 bash decompress.sh files_to_be_compressed/xor10.txt com
 ```
