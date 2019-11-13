@@ -31,7 +31,20 @@ To run a compression experiment:
 |np-bases|https://github.com/nanopore-wgs-consortium/NA12878|
 |np-quality|https://github.com/nanopore-wgs-consortium/NA12878|
 
-1. Download and unzip (if required) datasets.
+##
+1. Go to [Datasets](./Datasets)
+2. For real datasets, run
+```bash
+bash get_data.sh
+```
+3. For synthetic datasets, run
+```python
+# For generating XOR-10 dataset
+python generate_data.py --data_type 0entropy --markovity 10 --file_name files_to_be_compressed/xor10.txt
+# For generating HMM-10 dataset
+python generate_data.py --data_type HMM --markovity 10 --file_name files_to_be_compressed/hmm10.txt
+```
+4. This will generate a folder named `files_to_be_compressed`. This folder contains the parsed files which can be used to recreate the results in our paper.
 
 ### Running models
 #### There are two ways of running DeepZip
