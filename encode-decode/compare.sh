@@ -1,4 +1,5 @@
 #!/bin/bash
+# Based on https://unix.stackexchange.com/questions/397655/two-files-comparison-in-bash-script
 
 file1=$1
 file2=$2

@@ -7,11 +7,25 @@ Data Compression using neural networks
 
 ## Requirements
 0. GPU
-1. python2
+1. python3
 2. numpy
 3. sklearn
 4. keras 2.2.2
-5. tensorflow (gpu) 1.8
+5. tensorflow (gpu) 1.14
+
+
+### Download and install dependencies
+Download:
+```
+giti clone https://github.com/mohit1997/DZip.git
+```
+To set up virtual environment and dependencies (on Linux):
+```
+cd DZip
+python3 -m venv tf
+source tf/bin/activate
+bash install.sh
+```
 
 # USAGE
 To run a compression experiment: 
@@ -106,4 +120,10 @@ bash compress.sh files_to_be_compressed/xor10.txt com
 bash decompress.sh xor10.dzip bs
 # Decompress using Combined Model
 bash decompress.sh xor10.dzip com
+```
+
+#### Check if decoding is successful
+
+```bash
+bash compare.sh files_to_be_compressed/xor10.txt decom_xor10
 ```
