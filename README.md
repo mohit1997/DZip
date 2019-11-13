@@ -38,7 +38,7 @@ To run a compression experiment:
 bash get_data.sh
 ```
 3. For synthetic datasets, run
-```python
+```bash
 # For generating XOR-10 dataset
 python generate_data.py --data_type 0entropy --markovity 10 --file_name files_to_be_compressed/xor10.txt
 # For generating HMM-10 dataset
@@ -82,7 +82,7 @@ To compress a synthetic sequence XOR-10.
 #### Generating the dataset
 
 Go to [synthetic_datasets](./Datasets/synthetic_datasets)
-```python
+```bash
 python generate_data.py --data_type 0entropy --markovity 10 --file_name files_to_be_compressed/xor10.txt
 ```
 
