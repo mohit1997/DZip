@@ -70,3 +70,5 @@ bash compress.sh files_to_be_compressed/FILENAME com
 bash get_compression_results.sh files_to_be_compressed/FILENAME
 ```
 
+### Credits
+The arithmetic coding is performed using the code available at [Reference-arithmetic-coding](https://github.com/nayuki/Reference-arithmetic-coding). The code is a part of Project Nayuki.
