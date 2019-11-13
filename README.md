@@ -6,8 +6,8 @@ Data Compression using neural networks
 
 
 ## Requirements
-0. GPU
-1. python 2
+
+1.  2
 2. numpy
 3. sklearn
 4. keras 2.2.2
@@ -80,7 +80,7 @@ To compress a synthetic sequence XOR-10. Go to [synthetic_datasets](./Datasets/s
 python generate_data.py --data_type 0entropy --markovity 10 --file_name files_to_be_compressed/xor10.txt
 ```
 
-Copy the generated files `xor10.txt` to [files_to_be_compressed](./encode-decode/files_to_be_compressed)
+Copy the generated files `xor10.txt` to [encode-decode/files_to_be_compressed](./encode-decode/files_to_be_compressed)
 ```bash
 cp files_to_be_compressed/xor10.txt ../encode-decode/files_to_be_compressed/
 ```
