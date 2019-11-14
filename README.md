@@ -34,28 +34,29 @@ To run a compression experiment:
 #### There are two ways of running DeepZip
 
 ##### ENCODING-DECODING (uses cpu and slower)
-1. Go to [encode-decode](./encode-decode)
+<!-- 1. Go to [encode-decode](./encode-decode)
 2. Place the parsed files in the directory files_to_be_compressed.
-3. Run the following command
+3. Run the following command -->
 
 ```bash 
 cd encode-decode
-cp FILE files_to_be_compressed/
+cp FILE.txt files_to_be_compressed/
 # Compress using Bootstrap Model
-bash compress.sh files_to_be_compressed/INPUT_FILE OUTPUT_FILE bs
+bash compress.sh files_to_be_compressed/FILE.txt FILE.dzip bs
 # Compress using Combined Model
-bash compress.sh files_to_be_compressed/INPUT_FILE OUTPUT_FILE com
+bash compress.sh files_to_be_compressed/FILE.txt FILE.dzip com
 # Decompress
-bash decompress.sh INPUT_FILE OUTPUT_FILE
+bash decompress.sh FILE.dzip decom_FILE
+# Verify decompression
+bash compare.sh FILE.txt decom_FILE
 ```
 
 ##### Geting bits per symbol required (uses GPU for encoding and faster)
-1. Go to [coding-gpu](./coding-gpu)
-2. Place the parsed files in the directory files_to_be_compressed.
-3. Run the following command
+
+Outputs bits per character of the compressed file. (Doesn't actually compress the file)
 
 ```bash 
-bash get_compression_results.sh files_to_be_compressed/FILENAME
+bash get_compression_results.sh files_to_be_compressed/FILE.txt
 ```
 
 
