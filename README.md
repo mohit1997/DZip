@@ -7,11 +7,11 @@ Data Compression using neural networks
 
 ## Requirements
 0. GPU
-1. python3 (<= 3.6.8)
-2. numpy
-3. sklearn
-4. keras 2.2.2
-5. tensorflow (gpu) 1.14
+1. Python3 (<= 3.6.8)
+2. Numpy
+3. Sklearn
+4. Keras 2.2.2
+5. Tensorflow (gpu) 1.14
 
 
 ### Download and install dependencies
@@ -95,7 +95,7 @@ python generate_data.py --data_type HMM --markovity 10 --file_name files_to_be_c
 
 To compress a synthetic sequence XOR-10. 
 
-#### NOTE: We have already provided some sample syntheic sequences (XOR-k and HMM-k) for test runs in [coding-gpu/files_to_be_compressed](./coding-gpu/files_to_be_compressed).
+#### NOTE: We have already provided some sample synthetic sequences (XOR-k and HMM-k) for test runs in [coding-gpu/files_to_be_compressed](./coding-gpu/files_to_be_compressed).
 
 #### Compress using DZip
 ```bash 
