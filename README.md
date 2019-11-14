@@ -90,27 +90,12 @@ python generate_data.py --data_type HMM --markovity 10 --file_name files_to_be_c
 4. This will generate a folder named `files_to_be_compressed`. This folder contains the parsed files which can be used to recreate the results in our paper.
 
 
-### Credits
-The arithmetic coding is performed using the code available at [Reference-arithmetic-coding](https://github.com/nayuki/Reference-arithmetic-coding). The code is a part of Project Nayuki.
 
 ### Examples
 
 To compress a synthetic sequence XOR-10. 
 
 #### NOTE: We have already provided some sample syntheic sequences (XOR-k and HMM-k) for test runs in [coding-gpu/files_to_be_compressed](./coding-gpu/files_to_be_compressed).
-
-#### Generating the dataset
-
-Go to [synthetic_datasets](./Datasets/synthetic_datasets)
-```bash
-python generate_data.py --data_type 0entropy --markovity 10 --file_name files_to_be_compressed/xor10.txt
-```
-
-Copy the generated files `xor10.txt` to [encode-decode/files_to_be_compressed](./encode-decode/files_to_be_compressed)
-```bash
-cp files_to_be_compressed/xor10.txt ../encode-decode/files_to_be_compressed/
-```
-
 
 #### Compress using DZip
 ```bash 
@@ -133,3 +118,10 @@ bash decompress.sh xor10.dzip com
 ```bash
 bash compare.sh files_to_be_compressed/xor10.txt decom_xor10
 ```
+
+### Credits
+The arithmetic coding is performed using the code available at [Reference-arithmetic-coding](https://github.com/nayuki/Reference-arithmetic-coding). The code is a part of Project Nayuki.
+
+### Additional Comments
+
+The compression/decompression speed is approximately 5hrs/MB due to the limitation of [keras platform](https://keras.io/getting-started/faq/). The proposed compressor uses Neural Networks to model the sequence, hence requires GPUs for training and inference. However, some of the operations are non deterministic inherent to the the underlying platform. Hence, the training is inference is done with a CPU on a single thread, making our method less practical for usage. In future, we expect to bypass these limitations, and improve the compression/decompression times significantly (10 minutes/MB).
