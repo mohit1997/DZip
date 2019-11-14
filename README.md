@@ -34,6 +34,13 @@ brew install gcc@9
 ```
 
 Then instead of `install.sh` use `install_mac.sh`
+```bash
+cd DZip
+python3 -m venv tf
+source tf/bin/activate
+bash install_mac.sh
+```
+
 
 # USAGE
 To run a compression experiment: 
