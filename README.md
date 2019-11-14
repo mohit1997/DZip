@@ -55,7 +55,9 @@ bash compare.sh FILE.txt decom_FILE
 
 Outputs bits per character of the compressed file. (Doesn't actually compress the file)
 
-```bash 
+```bash
+cd coding-gpu
+cp FILE.txt files_to_be_compressed/
 bash get_compression_results.sh files_to_be_compressed/FILE.txt
 ```
 
