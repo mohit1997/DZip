@@ -40,11 +40,10 @@ To run a compression experiment:
 
 ```bash 
 cd encode-decode
-cp FILE.txt files_to_be_compressed/
 # Compress using Bootstrap Model
-bash compress.sh files_to_be_compressed/FILE.txt FILE.dzip bs
+bash compress.sh FILE.txt FILE.dzip bs
 # Compress using Combined Model
-bash compress.sh files_to_be_compressed/FILE.txt FILE.dzip com
+bash compress.sh FILE.txt FILE.dzip com
 # Decompress
 bash decompress.sh FILE.dzip decom_FILE
 # Verify decompression
@@ -57,7 +56,6 @@ Outputs bits per character of the compressed file. (Doesn't actually compress th
 
 ```bash
 cd coding-gpu
-cp FILE.txt files_to_be_compressed/
 bash get_compression_results.sh files_to_be_compressed/FILE.txt
 ```
 
