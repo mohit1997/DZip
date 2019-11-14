@@ -9,4 +9,8 @@ pip install \
       h5py \
       "numpy<1.17" \
       scipy \
-      scikit-learn \
+      scikit-learn
+
+cd libbsc && make
+cp bsc ../encode-decode/
+cp bsc ../coding-gpu/
