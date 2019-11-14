@@ -7,7 +7,7 @@ Data Compression using neural networks
 
 ## Requirements
 0. GPU
-1. python3
+1. python3 (<= 3.6.8)
 2. numpy
 3. sklearn
 4. keras 2.2.2
