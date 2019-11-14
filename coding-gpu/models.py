@@ -41,7 +41,6 @@ def biGRU_big(bs,time_steps,alphabet_size):
 
   jump = 16
   def my_shape(input_shape):
-     print(np.ceil(float(input_shape[1])/jump))
      return tuple((input_shape[0],int(np.ceil(float(input_shape[1])/jump)),input_shape[2]))
 
   def slice_shape(input_shape):
@@ -196,7 +195,6 @@ def biGRU_big(bs,time_steps,alphabet_size):
 def biGRU_jump(bs,time_steps,alphabet_size):
   jump = 16
   def my_shape(input_shape):
-     print(np.ceil(float(input_shape[1])/jump))
      return tuple((input_shape[0],int(np.ceil(float(input_shape[1])/jump)),input_shape[2]))
 
   if alphabet_size >= 1 and alphabet_size <=3:

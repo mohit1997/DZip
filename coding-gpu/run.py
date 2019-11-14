@@ -40,7 +40,5 @@ print(id2char_dict)
 out = [char2id_dict[c] for c in data]
 integer_encoded = np.array(out)
 integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
-print(list(integer_encoded[:10, 0]))
-print(data[:10])
 
 np.save(output_file, integer_encoded)

@@ -19,6 +19,7 @@ from keras import backend as K
 from utils import *
 from models import *
 import sys
+import pandas as pd
 
 def iterate_minibatches(inputs, targets, batchsize, n_classes, shuffle=False):
     assert inputs.shape[0] == targets.shape[0]
@@ -51,12 +52,19 @@ def fit_model(X, Y, bs, ARNN):
         # out = ARNN.train_on_batch(batch_x, [batch_y, batch_y])
         if i%10==0:
             sys.stdout.flush()
-            print('Batch {}/{} Loss = {:4f}'.format(i, len(y)//bs, np.mean(loss_list)), end='\r')
+            print('Batch {}/{} Average bits per character (bpc) = {:4f}'.format(i, len(y)//bs, np.mean(loss_list)), end='\r')
             if i%100000==0:
                 np.save('ARNN_{}_losslist_{}'.format(FLAGS.file_name, FLAGS.mode), np.array(loss_list))
-    
-    print('Training Complete Batch {}/{} Loss = {:4f}'.format(i, len(y)//bs, np.mean(loss_list)))
-    np.save('ARNN_{}_losslist_{}'.format(FLAGS.file_name, FLAGS.mode), np.array(loss_list))
+    print("----------------------------------------------------------------------------------")
+    print("DZip Finished")
+    print("----------------------------------------------------------------------------------")
+    print("Compression Results")
+    print('Combined Model: Average bits per character (bpc) = {:4f}'.format(np.mean(loss_list)))
+    print("Logged to Combined_{}_losslist_{}".format(FLAGS.file_name, FLAGS.mode))
+    bs_results = pd.read_csv("log_{}_{}_bootstrap".format(FLAGS.file_name, FLAGS.PRNN))
+    print('Bootstrap Model: Average bits per character (bpc) = {:4f}'.format(bs_results['loss'].iloc[-1]))
+    print("Logged to log_{}_{}_bootstrap".format(FLAGS.file_name, FLAGS.PRNN))
+    np.save('Combined_{}_losslist_{}'.format(FLAGS.file_name, FLAGS.mode), np.array(loss_list))
 
 
 batch_size=128

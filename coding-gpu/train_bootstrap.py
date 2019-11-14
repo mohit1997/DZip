@@ -32,7 +32,7 @@ def fit_model(X, Y, bs, nb_epoch, preprocessor, num_classes):
     optim = keras.optimizers.Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, clipnorm=0.1)
     preprocessor.compile(loss={'1': loss_fn}, optimizer=optim, metrics=['acc'])
     checkpoint = ModelCheckpoint(FLAGS.file_name + "_" + FLAGS.model, monitor='loss', verbose=1, save_best_only=True, mode='min', save_weights_only=True)
-    csv_logger = CSVLogger("log_{}_{}_PRNN".format(FLAGS.file_name, FLAGS.model), append=True, separator=',')
+    csv_logger = CSVLogger("log_{}_{}_bootstrap".format(FLAGS.file_name, FLAGS.model), append=True, separator=',')
     early_stopping = EarlyStopping(monitor='loss', mode='min', min_delta=0.005, patience=3, verbose=1)
 
     callbacks_list = [checkpoint, csv_logger, early_stopping]
@@ -63,15 +63,11 @@ FLAGS = parser.parse_args()
 os.environ["CUDA_VISIBLE_DEVICES"]=FLAGS.gpu
 num_epochs=FLAGS.epochs
 
-print("Calling")
 sequence = np.load(FLAGS.file_name + ".npy")
 n_classes = len(np.unique(sequence))
 sequence = sequence
 
 X, Y = generate_single_output_data(sequence, batch_size, sequence_length)
-print(Y.shape[1])
-
-
 
 PRNN = eval(FLAGS.model)(batch_size, sequence_length, n_classes)
 

@@ -5,6 +5,7 @@ pip install tqdm
 pip install \
       keras \
       argparse \
+      pandas \
       h5py \
       "numpy<1.17" \
       scipy \
