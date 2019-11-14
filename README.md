@@ -16,11 +16,11 @@ Data Compression using neural networks
 
 ### Download and install dependencies
 Download:
-```
+```bash
 git clone https://github.com/mohit1997/DZip.git
 ```
 To set up virtual environment and dependencies (on Linux):
-```
+```bash
 cd DZip
 python3 -m venv tf
 source tf/bin/activate
