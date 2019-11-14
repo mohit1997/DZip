@@ -27,7 +27,7 @@ source tf/bin/activate
 bash install.sh
 ```
 
-On macOS, you need gcc compiler for running BSC which is the entropy coder used in LFZip. For this, install gcc@9 using brew as follows:
+On macOS, you need gcc compiler for running BSC which encodes the NN weights. For this, install gcc@9 using brew as follows:
 ```bash
 brew update
 brew install gcc@9
