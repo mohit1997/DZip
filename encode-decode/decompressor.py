@@ -65,7 +65,8 @@ parser.add_argument('-output', action='store',dest='output_file',
 					help='decompressed_file')
 parser.add_argument('-gpu', action='store', dest='gpu_id', default="",
 					help='params file')
-
+parser.add_argument('-data_params', action='store', dest='params_file',
+                                        help='params file')
 args = parser.parse_args()
 
 os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu_id
@@ -145,7 +146,7 @@ def predict_lstm(length, timesteps, bs, alphabet_size, model_name):
 	return series
 
 def main():
-	with open(args.file_prefix +".params", 'r') as f:
+	with open(args.params_file, 'r') as f:
 		param_dict = json.load(f)
 	
 	len_series = param_dict['len_series']
@@ -163,6 +164,7 @@ def main():
 	print(series[:10])
 	f.write(''.join([id2char_dict[str(s)] for s in series]))
 	f.close()
+	print("Decompressed file saved to {}".format(args.output_file))
 
 
 if __name__ == "__main__":

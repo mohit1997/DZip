@@ -56,14 +56,27 @@ def fit_model(X, Y, bs, ARNN):
             if i%100000==0:
                 np.save('ARNN_{}_losslist_{}'.format(FLAGS.file_name, FLAGS.mode), np.array(loss_list))
     print("----------------------------------------------------------------------------------")
-    print("DZip Finished")
+    print("Compressing model parameters bith bsc")
     print("----------------------------------------------------------------------------------")
-    print("Compression Results")
-    print('Combined Model: Average bits per character (bpc) = {:4f}'.format(np.mean(loss_list)))
-    print("Logged to Combined_{}_losslist_{}".format(FLAGS.file_name, FLAGS.mode))
+    os.system("./bsc e {}_{} {}_{}.bsc".format(FLAGS.file_name, FLAGS.PRNN, FLAGS.file_name, FLAGS.PRNN))
+    print("----------------------------------------------------------------------------------")
+    print("\n\n\n")
+    print("**********DZip finished*********")
+    print("----------------------------------------------------------------------------------")
+    model_size = os.stat("{}_{}.bsc".format(FLAGS.file_name, FLAGS.PRNN)).st_size
     bs_results = pd.read_csv("log_{}_{}_bootstrap".format(FLAGS.file_name, FLAGS.PRNN))
-    print('Bootstrap Model: Average bits per character (bpc) = {:4f}'.format(bs_results['loss'].iloc[-1]))
+    model_bpc = model_size*8.0/len(sequence)
+    com_bpc = np.mean(loss_list)
+    bs_bpc = bs_results['loss'].iloc[-1]
+
+    print("Model Size {} bytes".format(model_size))
+    print("----------------------------------------------------------------------------------")
+    print('Combined Model: Average bits per character (bpc) = {:4f} [Bitstream {} bpc + Model {} bpc]'.format(com_bpc+model_bpc, com_bpc, model_bpc))
+    print("Logged to Combined_{}_losslist_{}".format(FLAGS.file_name, FLAGS.mode))
+    print("----------------------------------------------------------------------------------")
+    print('Bootstrap Model: Average bits per character (bpc) = {:4f} [Bitstream {} bpc + Model {} bpc]'.format(bs_bpc+model_bpc, bs_bpc, model_bpc))
     print("Logged to log_{}_{}_bootstrap".format(FLAGS.file_name, FLAGS.PRNN))
+    print("----------------------------------------------------------------------------------")
     np.save('Combined_{}_losslist_{}'.format(FLAGS.file_name, FLAGS.mode), np.array(loss_list))
 
 

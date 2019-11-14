@@ -146,7 +146,7 @@ def main():
 	params['bs'] = batch_size
 	params['timesteps'] = timesteps
 
-	with open(args.output_file_prefix+'.params','w') as f:
+	with open(args.params_file,'w') as f:
 		json.dump(params, f, indent=4)
 
 	sequence = sequence.reshape(-1)
