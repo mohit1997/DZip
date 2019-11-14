@@ -100,23 +100,21 @@ To compress a synthetic sequence XOR-10.
 #### Compress using DZip
 ```bash 
 # Compress using Bootstrap Model
-bash compress.sh files_to_be_compressed/xor10.txt bs
+bash compress.sh files_to_be_compressed/xor10.txt xor10.dzip bs
 # Compress using Combined Model
-bash compress.sh files_to_be_compressed/xor10.txt com
+bash compress.sh files_to_be_compressed/xor10.txt xor10.dzip com
 ```
 #### Decompress using DZip
 
 ```bash 
 # Decompress using Bootstrap Model
-bash decompress.sh xor10.dzip bs
-# Decompress using Combined Model
-bash decompress.sh xor10.dzip com
+bash decompress.sh xor10.dzip decom_xor10.txt
 ```
 
 #### Check if decoding is successful
 
 ```bash
-bash compare.sh files_to_be_compressed/xor10.txt decom_xor10
+bash compare.sh files_to_be_compressed/xor10.txt decom_xor10.txt
 ```
 
 ### Credits
