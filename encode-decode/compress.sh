@@ -6,7 +6,8 @@ PARAM_FILE=params_$BASE
 PRNN=biGRU_jump
 ARNN=biGRU_big
 JOINT=_
-mode=$2
+mode=$3
+OUTPUT=$2
 echo $PARAM_FILE
 
 python run.py --file_name $FILE
@@ -18,6 +19,13 @@ if [ "$mode" = com ] ; then
 elif [ "$mode" = bs ] ; then
 	python compressor_bs.py -model $BASE$JOINT$PRNN -model_name $ARNN -batch_size 128 -data $BASE -data_params $PARAM_FILE -output $BASE
 fi
+
+for var in BASE PRNN ARNN mode; do
+    declare -p $var | cut -d ' ' -f 3- >> vars.dzip
+done
+
+tar -cf $OUTPUT vars.dzip $PARAM_FILE $BASE$JOINT$PRNN $BASE.dzip
+rm vars.dzip $PARAM_FILE $BASE$JOINT$PRNN $BASE.dzip
 
 # python decompressor.py -model $BASE$JOINT$PRNN -model_name $ARNN -batch_size 128 -input $BASE -output decom$JOINT$BASE
 
