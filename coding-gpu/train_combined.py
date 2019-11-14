@@ -120,6 +120,6 @@ if semiadaptive:
     for l in PRNN.layers:
         l.trainable = False
 
-ARNN.summary()
+# ARNN.summary()
 
 fit_model(X, Y, batch_size, ARNN)
