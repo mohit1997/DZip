@@ -2,8 +2,7 @@
 ## improved general-purpose lossless compression based on novel neural network modeling
 #### Arxiv: https://arxiv.org/abs/1911.03572
 ## Description
-Data Compression using neural networks
-
+DZip is a general lossless compressor for sequential data which uses NN-based modelling combined with arithmetic coding. We refer to the NN-based model as the "combined model", as it is composed of a bootstrap model and a supporter model. The bootstrap model is trained prior to compression on the data to be compressed, and the resulting model parameters (weights) are stored as part of the compressed output (after being losslessly compressed with BSC). The combined model is adaptively trained (bootstrap model parameters are fixed) while compressing the data, and hence its parameters do not need to be stored as part of the compressed output.
 
 ## Requirements
 0. GPU
@@ -45,8 +44,9 @@ bash install_mac.sh
 # USAGE
 To run a compression experiment: 
 
-### Running DZip Compression algorithm
-#### There are two ways of running DeepZip
+### How to run DZip Compressor
+
+User can specify to run DZip either using the combined model (default setting) or using the bootstrap model alone. Due to current limitations of the Keras platform (see "Additional Comments" below), the encoding/decoding is currently slow. Therefore, we provide a faster method to directly obtain the bits per symbol achieved by DZip, without actually compressing the file.
 
 ##### ENCODING-DECODING (uses cpu and slower)
 <!-- 1. Go to [encode-decode](./encode-decode)
@@ -55,19 +55,17 @@ To run a compression experiment:
 
 ```bash 
 cd encode-decode
-# Compress using Bootstrap Model
-bash compress.sh FILE.txt FILE.dzip bs
-# Compress using Combined Model
+# Compress using the combined model (default usage of DZip)
 bash compress.sh FILE.txt FILE.dzip com
+# Compress using only the bootstrap model
+bash compress.sh FILE.txt FILE.dzip bs
 # Decompress
 bash decompress.sh FILE.dzip decom_FILE
-# Verify decompression
+# Verify successful decompression
 bash compare.sh FILE.txt decom_FILE
 ```
 
-##### Geting bits per symbol required (uses GPU for encoding and faster)
-
-Outputs bits per character of the compressed file. (Doesn't actually compress the file)
+##### Getting the resulting bits per symbol achieved by DZip (for both the combined model and the bootstrap only model) without compressing the file explicitly (uses GPU, faster)
 
 ```bash
 cd coding-gpu
@@ -137,4 +135,5 @@ The arithmetic coding is performed using the code available at [Reference-arithm
 
 ### Additional Comments
 
-The compression/decompression speed is approximately 5hrs/MB due to the limitation of [keras platform](https://keras.io/getting-started/faq/). The proposed compressor uses Neural Networks to model the sequence, hence requires GPUs for training and inference. However, some of the operations are non deterministic inherent to the the underlying platform. Hence, the training and inference is performed through a CPU on a single thread, making our method less practical for usage. In future, we expect to bypass these limitations, and improve the compression/decompression times significantly (10 minutes/MB).
+With the combined model (default setting of DZip), the compression/decompression speed is approximately 5 hours/MB due to the limitation of the [keras platform](https://keras.io/getting-started/faq/). The proposed compressor uses neural networks to model the sequence, and hence requires GPUs for training and inference. However, some of the operations are inherently non deterministic due to the underlying platform. Hence, the training and inference of the combined model is performed with CPU on a single thread, making DZip less practical for usage. In the future, we expect to bypass these limitations, and improve the compression/decompression speed significantly (10 minutes/MB).
+
