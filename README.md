@@ -122,7 +122,7 @@ bash compress.sh files_to_be_compressed/xor10.txt xor10.dzip com
 #### Decompress using DZip
 
 ```bash 
-# Decompress using Bootstrap Model
+# Decompress
 bash decompress.sh xor10.dzip decom_xor10.txt
 ```
 
