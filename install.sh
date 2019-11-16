@@ -8,6 +8,7 @@ pip install \
       pandas \
       h5py \
       "numpy<1.17" \
+      setuptools==41.0.0 \
       scipy \
       scikit-learn
 
