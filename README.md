@@ -4,6 +4,8 @@
 ## Description
 DZip is a general lossless compressor for sequential data which uses NN-based modelling combined with arithmetic coding. We refer to the NN-based model as the "combined model", as it is composed of a bootstrap model and a supporter model. The bootstrap model is trained prior to compression on the data to be compressed, and the resulting model parameters (weights) are stored as part of the compressed output (after being losslessly compressed with BSC). The combined model is adaptively trained (bootstrap model parameters are fixed) while compressing the data, and hence its parameters do not need to be stored as part of the compressed output.
 
+A pytorch implementation is available at [https://github.com/mohit1997/Dzip-torch](https://github.com/mohit1997/Dzip-torch)
+
 ## Requirements
 0. GPU
 1. Python3 (<= 3.6.8)
@@ -11,6 +13,7 @@ DZip is a general lossless compressor for sequential data which uses NN-based mo
 3. Sklearn
 4. Keras 2.2.2
 5. Tensorflow (gpu) 1.14
+
 
 
 ### Download and install dependencies
